@@ -1,0 +1,158 @@
+# AGENTS.md
+
+## Project
+
+Dream Atlas is an AI Dream Journal. The product turns dream notes into a personal atlas of images, emotions, recurring motifs, places, characters and symbols.
+
+The intended feeling is quiet, intimate and reflective. It should not feel like a generic notes app or a loud AI dashboard. The app should help the user notice patterns in their own dream language over time.
+
+## Current State
+
+This is a React + TypeScript + Vite app with:
+
+- Tailwind CSS styling.
+- Zustand persistence.
+- Local mock dreams.
+- A dream list.
+- A dream editor.
+- An insights panel for one selected dream.
+- A dev API endpoint for `/api/analyze-dream` in `vite.config.ts`.
+- A local fallback analyzer when `OPENAI_API_KEY` is missing.
+- Functional search across notes and analysis fields.
+- Basic title, date, mood and delete controls.
+
+Important gap: `/api/analyze-dream` currently lives in Vite dev middleware. A production deployment path is still needed.
+
+## Product Direction
+
+Prioritize work in this order:
+
+1. Build the Atlas view that aggregates patterns across all dreams.
+2. Move `/api/analyze-dream` to a production-ready backend or deployment target.
+3. Improve daily journal ergonomics.
+4. Add reflective memory features.
+5. Harden privacy, tests, accessibility and deployment.
+
+## MVP Loop
+
+The core loop is:
+
+1. User records a dream.
+2. AI returns structured analysis.
+3. The analysis is saved with the dream.
+4. The app aggregates patterns across dreams.
+5. The user can explore recurring symbols, emotional tone and motifs over time.
+
+Do not overbuild before this loop is real.
+
+## Domain Model
+
+The current `DreamAnalysis` shape is:
+
+- `summary`
+- `tone`
+- `emotions`: label + intensity
+- `symbols`: label + meaning
+- `places`
+- `characters`
+- `recurringThemes`
+
+Keep AI output compatible with `src/types/dream.ts` unless there is a deliberate migration.
+
+## UX Principles
+
+- The first screen should be the usable journal, not a marketing page.
+- Keep the interface calm, legible and emotionally precise.
+- Do not make the app feel like therapy, diagnosis or fortune telling.
+- Treat AI interpretation as suggestive pattern reading, not truth.
+- Prefer user agency: allow editing, rejecting or revising AI insights later.
+- Dreams are sensitive data. Privacy and local-first behavior matter.
+
+## Visual Direction
+
+Existing direction:
+
+- Dark night-like base.
+- Mist, moon, iris, ember and tide colors.
+- Serif typography for dream writing.
+- Small symbolic icons from `lucide-react`.
+- Compact panels and 8px-or-less radius.
+
+Avoid:
+
+- Generic SaaS hero pages.
+- Decorative bloat.
+- Loud gradients that overpower the writing.
+- UI text that explains obvious controls.
+
+## Engineering Notes
+
+- Use existing local patterns before adding new abstractions.
+- Keep changes scoped.
+- Prefer typed data transformations over ad hoc string parsing.
+- Keep the store migration path in mind because dreams are persisted in localStorage.
+- Do not break existing persisted data without a migration.
+- Add focused tests when adding aggregation, schema normalization or analysis parsing.
+
+## Important Files
+
+- `src/App.tsx` - app layout.
+- `src/store/dreamStore.ts` - Zustand store and persistence.
+- `src/types/dream.ts` - core domain types.
+- `src/api/analyzeDreamClient.ts` - frontend analysis client.
+- `src/components/DreamList.tsx` - dream list.
+- `src/components/DreamEditor.tsx` - editor.
+- `src/components/InsightsPanel.tsx` - selected dream insights.
+- `src/utils/dreamSignature.ts` - emotion-based visual signature.
+
+## Roadmap
+
+### Phase 1: Working AI Journal
+
+- Implement `/api/analyze-dream`. Done for dev middleware.
+- Enforce structured JSON output. Done.
+- Save analysis to the selected dream. Done.
+- Add local fallback when no API key is configured. Done.
+- Add delete, date, mood and title editing. Done.
+- Make search functional. Done.
+- Add production-ready API deployment path. Pending.
+- Continue polishing error, retry and empty states. Pending.
+
+### Phase 2: Atlas View
+
+- Aggregate symbols, themes, places, characters and emotions across all dreams.
+- Show frequency, recency and related dreams.
+- Add emotion timeline.
+- Add navigation from atlas items back to dream entries.
+
+### Phase 3: Daily UX
+
+- Improve mobile flow.
+- Add autosave status.
+- Add fast capture mode.
+- Add filters.
+- Add export and import.
+
+### Phase 4: Reflection
+
+- Add weekly summaries.
+- Compare a new dream with similar old dreams.
+- Let users annotate AI insights.
+- Let users mark AI symbols as useful, wrong or personal.
+
+### Phase 5: Trust and Release
+
+- Add privacy settings and copy.
+- Add tests.
+- Improve accessibility.
+- Define deployment.
+- Prepare for private beta.
+
+## Current Best Next Task
+
+Build the first Atlas view:
+
+1. Add an aggregation utility for symbols, themes, places, characters and emotions.
+2. Add an Atlas surface to explore those aggregates.
+3. Link atlas items back to their related dreams.
+4. Keep the existing journal-first layout intact.
