@@ -20,6 +20,8 @@ This is a React + TypeScript + Vite app with:
 - A local fallback analyzer when `OPENAI_API_KEY` is missing.
 - Functional search across notes and analysis fields.
 - Basic title, date, mood and delete controls.
+- First Atlas panel aggregating symbols, emotions, places, characters and recurring themes.
+- Emotion timeline, atlas signal filters and expandable related dream lists.
 
 Important gap: `/api/analyze-dream` currently lives in Vite dev middleware. A production deployment path is still needed.
 
@@ -103,7 +105,9 @@ Avoid:
 - `src/components/DreamList.tsx` - dream list.
 - `src/components/DreamEditor.tsx` - editor.
 - `src/components/InsightsPanel.tsx` - selected dream insights.
+- `src/components/AtlasPanel.tsx` - aggregate atlas panel.
 - `src/utils/dreamSignature.ts` - emotion-based visual signature.
+- `src/utils/dreamAtlas.ts` - cross-dream aggregation utilities.
 
 ## Roadmap
 
@@ -120,10 +124,12 @@ Avoid:
 
 ### Phase 2: Atlas View
 
-- Aggregate symbols, themes, places, characters and emotions across all dreams.
-- Show frequency, recency and related dreams.
-- Add emotion timeline.
-- Add navigation from atlas items back to dream entries.
+- Aggregate symbols, themes, places, characters and emotions across all dreams. Done.
+- Show frequency, recency and related dreams. Done.
+- Add navigation from atlas items back to dream entries. Done.
+- Add emotion timeline. Done.
+- Add expandable related dream lists per atlas item. Done.
+- Add atlas signal filters. Done.
 
 ### Phase 3: Daily UX
 
@@ -150,9 +156,9 @@ Avoid:
 
 ## Current Best Next Task
 
-Build the first Atlas view:
+Start Phase 3 daily UX:
 
-1. Add an aggregation utility for symbols, themes, places, characters and emotions.
-2. Add an Atlas surface to explore those aggregates.
-3. Link atlas items back to their related dreams.
-4. Keep the existing journal-first layout intact.
+1. Improve the mobile flow so list, editor and insights/atlas are distinct states.
+2. Add an autosave indicator.
+3. Add fast capture mode.
+4. Add filters for date, mood, theme and analysis status.

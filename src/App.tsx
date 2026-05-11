@@ -1,9 +1,15 @@
+import { useState } from 'react'
+import { AtlasPanel } from './components/AtlasPanel'
 import { DreamEditor } from './components/DreamEditor'
 import { DreamList } from './components/DreamList'
 import { InsightsPanel } from './components/InsightsPanel'
 import { useDreamStore } from './store/dreamStore'
 
+type RightPanelMode = 'insights' | 'atlas'
+
 function App() {
+  const [rightPanelMode, setRightPanelMode] =
+    useState<RightPanelMode>('insights')
   const {
     analysisError,
     analysisStatus,
@@ -65,7 +71,39 @@ function App() {
           }}
         />
         <div className="hidden min-h-0 lg:block">
-          <InsightsPanel dream={selectedDream} />
+          <aside className="flex h-full min-h-0 w-full flex-col border-l border-white/[0.08] bg-night-900/[0.82] lg:w-[338px]">
+            <div className="border-b border-white/[0.08] px-4 py-3">
+              <div className="grid grid-cols-2 rounded-md border border-white/[0.08] bg-night-950/[0.4] p-1">
+                <button
+                  className={`h-8 rounded text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-moon/20 ${
+                    rightPanelMode === 'insights'
+                      ? 'bg-white/[0.08] text-mist-100'
+                      : 'text-mist-400 hover:text-mist-200'
+                  }`}
+                  onClick={() => setRightPanelMode('insights')}
+                  type="button"
+                >
+                  Insights
+                </button>
+                <button
+                  className={`h-8 rounded text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-tide/20 ${
+                    rightPanelMode === 'atlas'
+                      ? 'bg-white/[0.08] text-mist-100'
+                      : 'text-mist-400 hover:text-mist-200'
+                  }`}
+                  onClick={() => setRightPanelMode('atlas')}
+                  type="button"
+                >
+                  Atlas
+                </button>
+              </div>
+            </div>
+            {rightPanelMode === 'insights' ? (
+              <InsightsPanel dream={selectedDream} />
+            ) : (
+              <AtlasPanel dreams={dreams} onSelectDream={selectDream} />
+            )}
+          </aside>
         </div>
       </div>
     </div>

@@ -17,6 +17,7 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - Локальный fallback-анализ, если `OPENAI_API_KEY` не задан.
 - Поиск по тексту записи и AI-слоям анализа.
 - Редактирование title, date, mood и удаление записей.
+- Первый Atlas View с агрегацией symbols, emotions, places, characters и recurring themes.
 
 ## Продуктовое ядро
 
@@ -49,12 +50,14 @@ Dream Atlas должен ощущаться не как обычный note-taki
 
 Цель: добавить то, ради чего приложение называется Atlas.
 
-- Сделать отдельный режим или панель "Atlas".
-- Агрегировать symbols, emotions, places, characters и recurringThemes по всем снам.
-- Показывать частотность и последние появления символов.
-- Добавить emotion timeline по датам.
-- Добавить связи "symbol -> dreams" и "theme -> dreams".
-- Сделать быстрый переход из элемента карты к связанным снам.
+- [x] Сделать отдельный режим или панель "Atlas".
+- [x] Агрегировать symbols, emotions, places, characters и recurringThemes по всем снам.
+- [x] Показывать частотность и последние появления символов.
+- [x] Добавить emotion timeline по датам.
+- [x] Добавить связи "symbol -> dreams" и "theme -> dreams".
+- [x] Сделать быстрый переход из элемента карты к связанным снам.
+- [x] Добавить раскрытие всех связанных снов для каждого элемента, а не только переход к последнему.
+- [x] Добавить фильтр по типу сигнала: emotions, symbols, themes, places, people.
 
 Критерий готовности: по накопленным записям видно, какие мотивы возвращаются и как меняется эмоциональный фон.
 
@@ -107,7 +110,9 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - `src/components/DreamList.tsx` - список записей.
 - `src/components/DreamEditor.tsx` - редактор выбранного сна.
 - `src/components/InsightsPanel.tsx` - панель анализа одного сна.
+- `src/components/AtlasPanel.tsx` - агрегированная карта мотивов по всем снам.
 - `src/utils/dreamSignature.ts` - визуальная подпись сна на основе эмоций.
+- `src/utils/dreamAtlas.ts` - агрегация symbols, emotions, places, characters и themes.
 
 ## Development
 
@@ -144,12 +149,12 @@ npm run lint
 
 ## Следующий лучший шаг
 
-Самый полезный следующий шаг: начать `Atlas View` поверх сохраненных анализов.
+Самый полезный следующий шаг: перейти к Phase 3 и сделать дневник удобным для ежедневного использования.
 
 Это значит:
 
-1. Добавить aggregation utility для symbols, themes, places, characters и emotions.
-2. Сделать отдельный режим или правую вкладку `Atlas`.
-3. Показывать frequency, recency и related dreams.
-4. Добавить переход из элемента атласа к связанным снам.
+1. Переработать mobile UX: список, редактор и insights/atlas как отдельные состояния.
+2. Добавить autosave indicator.
+3. Добавить fast capture mode.
+4. Добавить фильтры по датам, настроению, темам и наличию анализа.
 5. После этого вынести `/api/analyze-dream` в production-ready backend/deployment target.

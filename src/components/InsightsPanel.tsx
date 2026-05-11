@@ -22,7 +22,7 @@ export function InsightsPanel({ dream }: InsightsPanelProps) {
   const signature = getDreamSignature(analysis)
 
   return (
-    <aside className="flex h-full min-h-0 w-full flex-col border-l border-white/[0.08] bg-night-900/[0.82] lg:w-[338px]">
+    <aside className="flex h-full min-h-0 w-full flex-col">
       <div className="border-b border-white/[0.08] px-5 py-5">
         <div className="flex items-center gap-3">
           <div className="grid h-9 w-9 place-items-center rounded-md border border-iris/[0.22] bg-iris/10 text-iris">
