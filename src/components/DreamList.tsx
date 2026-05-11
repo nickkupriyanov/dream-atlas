@@ -1,6 +1,14 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
-import { CalendarDays, Moon, Plus, Search, Sparkle } from 'lucide-react'
+import {
+  CalendarDays,
+  Moon,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  Sparkle,
+  X,
+} from 'lucide-react'
 import type { DreamEntry } from '../types/dream'
 import { getDreamSignature, getDreamTitle } from '../utils/dreamSignature'
 
@@ -18,13 +26,59 @@ export function DreamList({
   onSelectDream,
 }: DreamListProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [dateFilter, setDateFilter] = useState('')
+  const [moodFilter, setMoodFilter] = useState('all')
+  const [themeFilter, setThemeFilter] = useState('')
+  const [analysisFilter, setAnalysisFilter] = useState('all')
   const normalizedQuery = searchQuery.trim().toLowerCase()
+  const normalizedDateFilter = dateFilter.trim().toLowerCase()
+  const normalizedThemeFilter = themeFilter.trim().toLowerCase()
+  const hasActiveFilters =
+    normalizedDateFilter ||
+    moodFilter !== 'all' ||
+    normalizedThemeFilter ||
+    analysisFilter !== 'all'
+  const moodOptions = useMemo(
+    () =>
+      Array.from(new Set(dreams.map((dream) => dream.mood).filter(Boolean)))
+        .sort((first, second) => first.localeCompare(second)),
+    [dreams],
+  )
   const filteredDreams = useMemo(() => {
-    if (!normalizedQuery) {
-      return dreams
-    }
-
     return dreams.filter((dream) => {
+      const hasAnalysis =
+        dream.analysis.tone !== 'unread' ||
+        dream.analysis.symbols.length > 0 ||
+        dream.analysis.places.length > 0 ||
+        dream.analysis.characters.length > 0 ||
+        dream.analysis.recurringThemes.length > 0
+      const matchesDate =
+        !normalizedDateFilter ||
+        dream.date.toLowerCase().includes(normalizedDateFilter)
+      const matchesMood = moodFilter === 'all' || dream.mood === moodFilter
+      const matchesTheme =
+        !normalizedThemeFilter ||
+        dream.analysis.recurringThemes.some((theme) =>
+          theme.toLowerCase().includes(normalizedThemeFilter),
+        )
+      const matchesAnalysis =
+        analysisFilter === 'all' ||
+        (analysisFilter === 'analyzed' && hasAnalysis) ||
+        (analysisFilter === 'unread' && !hasAnalysis)
+
+      if (
+        !matchesDate ||
+        !matchesMood ||
+        !matchesTheme ||
+        !matchesAnalysis
+      ) {
+        return false
+      }
+
+      if (!normalizedQuery) {
+        return true
+      }
+
       const searchableText = [
         dream.title,
         dream.date,
@@ -47,7 +101,21 @@ export function DreamList({
 
       return searchableText.includes(normalizedQuery)
     })
-  }, [dreams, normalizedQuery])
+  }, [
+    analysisFilter,
+    dreams,
+    moodFilter,
+    normalizedDateFilter,
+    normalizedQuery,
+    normalizedThemeFilter,
+  ])
+
+  function clearFilters() {
+    setDateFilter('')
+    setMoodFilter('all')
+    setThemeFilter('')
+    setAnalysisFilter('all')
+  }
 
   return (
     <aside className="flex h-full min-h-0 w-full flex-col border-r border-white/[0.08] bg-night-900/[0.78] md:w-[286px]">
@@ -83,6 +151,64 @@ export function DreamList({
             value={searchQuery}
           />
         </label>
+
+        <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
+              <SlidersHorizontal size={13} />
+              Filters
+            </div>
+            {hasActiveFilters ? (
+              <button
+                aria-label="Clear filters"
+                className="grid h-6 w-6 place-items-center rounded border border-white/[0.08] text-mist-400 outline-none transition hover:border-moon/25 hover:text-moon focus-visible:ring-2 focus-visible:ring-moon/20"
+                onClick={clearFilters}
+                type="button"
+              >
+                <X size={12} />
+              </button>
+            ) : null}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              aria-label="Filter by date"
+              className="h-8 rounded border border-white/[0.08] bg-white/[0.035] px-2 text-xs text-mist-200 outline-none placeholder:text-mist-400 focus:border-moon/25"
+              onChange={(event) => setDateFilter(event.target.value)}
+              placeholder="Date"
+              value={dateFilter}
+            />
+            <select
+              aria-label="Filter by mood"
+              className="h-8 rounded border border-white/[0.08] bg-white/[0.035] px-2 text-xs text-mist-200 outline-none focus:border-moon/25"
+              onChange={(event) => setMoodFilter(event.target.value)}
+              value={moodFilter}
+            >
+              <option value="all">All moods</option>
+              {moodOptions.map((mood) => (
+                <option key={mood} value={mood}>
+                  {mood}
+                </option>
+              ))}
+            </select>
+            <input
+              aria-label="Filter by theme"
+              className="h-8 rounded border border-white/[0.08] bg-white/[0.035] px-2 text-xs text-mist-200 outline-none placeholder:text-mist-400 focus:border-moon/25"
+              onChange={(event) => setThemeFilter(event.target.value)}
+              placeholder="Theme"
+              value={themeFilter}
+            />
+            <select
+              aria-label="Filter by analysis status"
+              className="h-8 rounded border border-white/[0.08] bg-white/[0.035] px-2 text-xs text-mist-200 outline-none focus:border-moon/25"
+              onChange={(event) => setAnalysisFilter(event.target.value)}
+              value={analysisFilter}
+            >
+              <option value="all">All notes</option>
+              <option value="analyzed">Analyzed</option>
+              <option value="unread">Unread</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3">

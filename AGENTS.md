@@ -22,6 +22,8 @@ This is a React + TypeScript + Vite app with:
 - Basic title, date, mood and delete controls.
 - First Atlas panel aggregating symbols, emotions, places, characters and recurring themes.
 - Emotion timeline, atlas signal filters and expandable related dream lists.
+- Mobile List / Write / Insights / Atlas modes.
+- Local autosave status, fast capture mode, and list filters.
 
 Important gap: `/api/analyze-dream` currently lives in Vite dev middleware. A production deployment path is still needed.
 
@@ -133,10 +135,10 @@ Avoid:
 
 ### Phase 3: Daily UX
 
-- Improve mobile flow.
-- Add autosave status.
-- Add fast capture mode.
-- Add filters.
+- Improve mobile flow. Done.
+- Add autosave status. Done.
+- Add fast capture mode. Done.
+- Add filters. Done.
 - Add export and import.
 
 ### Phase 4: Reflection
@@ -156,9 +158,8 @@ Avoid:
 
 ## Current Best Next Task
 
-Start Phase 3 daily UX:
+Finish Phase 3 data portability:
 
-1. Improve the mobile flow so list, editor and insights/atlas are distinct states.
-2. Add an autosave indicator.
-3. Add fast capture mode.
-4. Add filters for date, mood, theme and analysis status.
+1. Add JSON or Markdown export.
+2. Add local backup import.
+3. Validate imported dream data before writing it to persisted state.

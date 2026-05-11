@@ -4,6 +4,8 @@ import {
   CheckCircle2,
   Clock3,
   Loader2,
+  Maximize2,
+  Minimize2,
   PenLine,
   Plus,
   Sparkles,
@@ -17,6 +19,7 @@ type DreamEditorProps = {
   analysisError: string | null
   analysisStatus: 'idle' | 'loading' | 'success' | 'error'
   dream?: DreamEntry
+  isCaptureMode: boolean
   onCreateDream: () => void
   onDateChange: (date: string) => void
   onDeleteDream: () => void
@@ -24,12 +27,15 @@ type DreamEditorProps = {
   onTitleChange: (title: string) => void
   onTextChange: (text: string) => void
   onAnalyzeDream: () => void
+  onToggleCaptureMode: () => void
+  saveStatus: 'saved' | 'saving'
 }
 
 export function DreamEditor({
   analysisError,
   analysisStatus,
   dream,
+  isCaptureMode,
   onCreateDream,
   onDateChange,
   onDeleteDream,
@@ -37,6 +43,8 @@ export function DreamEditor({
   onTitleChange,
   onTextChange,
   onAnalyzeDream,
+  onToggleCaptureMode,
+  saveStatus,
 }: DreamEditorProps) {
   if (!dream) {
     return (
@@ -66,7 +74,11 @@ export function DreamEditor({
 
   return (
     <main className="flex min-h-0 flex-1 flex-col bg-night-850">
-      <header className="flex flex-col gap-4 border-b border-white/[0.08] px-5 py-5 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+      <header
+        className={`flex flex-col gap-4 border-b border-white/[0.08] px-5 lg:flex-row lg:items-center lg:justify-between lg:px-8 ${
+          isCaptureMode ? 'py-3' : 'py-5'
+        }`}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -75,22 +87,36 @@ export function DreamEditor({
             key={dream.id}
             transition={{ duration: 0.24 }}
           >
-            <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-moon/70">
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.22em] text-moon/70">
               <PenLine size={14} />
               <span>Lucid note</span>
               <span
                 className="ml-1 h-1.5 w-12 rounded-full"
                 style={{ background: signature.gradient }}
               />
+              <span className="inline-flex items-center gap-1 tracking-normal text-mist-400">
+                {saveStatus === 'saving' ? (
+                  <Loader2 size={12} className="animate-spin" />
+                ) : (
+                  <CheckCircle2 size={12} />
+                )}
+                {saveStatus === 'saving' ? 'Saving' : 'Saved'}
+              </span>
             </div>
             <input
               aria-label="Dream title"
-              className="w-full max-w-3xl bg-transparent font-serif text-3xl leading-tight text-mist-100 outline-none transition placeholder:text-mist-400/60 focus:text-white lg:text-4xl"
+              className={`w-full max-w-3xl bg-transparent font-serif leading-tight text-mist-100 outline-none transition placeholder:text-mist-400/60 focus:text-white ${
+                isCaptureMode ? 'text-2xl lg:text-3xl' : 'text-3xl lg:text-4xl'
+              }`}
               onChange={(event) => onTitleChange(event.target.value)}
               placeholder="Untitled Dream"
               value={dream.title}
             />
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-mist-400">
+            <div
+              className={`mt-3 flex flex-wrap items-center gap-2 text-sm text-mist-400 ${
+                isCaptureMode ? 'hidden md:flex' : ''
+              }`}
+            >
               <label className="inline-flex h-8 items-center gap-1.5 rounded border border-white/[0.08] bg-white/[0.03] px-2 text-xs text-mist-300 transition focus-within:border-moon/25 focus-within:bg-night-950/40">
                 <CalendarDays size={14} />
                 <input
@@ -119,15 +145,29 @@ export function DreamEditor({
 
         <div className="flex flex-wrap items-center gap-2">
           <button
+            aria-label={
+              isCaptureMode ? 'Leave capture mode' : 'Enter capture mode'
+            }
+            className="grid h-10 w-10 place-items-center rounded-md border border-white/[0.08] bg-white/[0.035] text-mist-400 outline-none transition hover:border-tide/30 hover:bg-tide/[0.08] hover:text-tide focus-visible:ring-2 focus-visible:ring-tide/20"
+            onClick={onToggleCaptureMode}
+            type="button"
+          >
+            {isCaptureMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+          <button
             aria-label="Delete dream"
-            className="grid h-10 w-10 place-items-center rounded-md border border-white/[0.08] bg-white/[0.035] text-mist-400 outline-none transition hover:border-ember/35 hover:bg-ember/[0.08] hover:text-ember focus-visible:ring-2 focus-visible:ring-ember/20"
+            className={`h-10 w-10 place-items-center rounded-md border border-white/[0.08] bg-white/[0.035] text-mist-400 outline-none transition hover:border-ember/35 hover:bg-ember/[0.08] hover:text-ember focus-visible:ring-2 focus-visible:ring-ember/20 ${
+              isCaptureMode ? 'hidden sm:grid' : 'grid'
+            }`}
             onClick={onDeleteDream}
             type="button"
           >
             <Trash2 size={16} />
           </button>
           <motion.button
-            className="inline-flex h-10 min-w-[164px] items-center justify-center gap-2 whitespace-nowrap rounded-md border border-moon/25 bg-moon/[0.12] px-4 text-sm font-medium text-moon outline-none transition hover:border-moon/[0.45] hover:bg-moon/[0.18] focus-visible:ring-2 focus-visible:ring-moon/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45"
+            className={`h-10 min-w-[164px] items-center justify-center gap-2 whitespace-nowrap rounded-md border border-moon/25 bg-moon/[0.12] px-4 text-sm font-medium text-moon outline-none transition hover:border-moon/[0.45] hover:bg-moon/[0.18] focus-visible:ring-2 focus-visible:ring-moon/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45 ${
+              isCaptureMode ? 'hidden sm:inline-flex' : 'inline-flex'
+            }`}
             disabled={!dream.text.trim() || analysisStatus === 'loading'}
             onClick={onAnalyzeDream}
             type="button"
@@ -176,7 +216,11 @@ export function DreamEditor({
         ) : null}
       </AnimatePresence>
 
-      <section className="min-h-0 flex-1 overflow-hidden px-4 py-4 lg:px-8 lg:py-6">
+      <section
+        className={`min-h-0 flex-1 overflow-hidden px-4 lg:px-8 ${
+          isCaptureMode ? 'py-3 lg:py-4' : 'py-4 lg:py-6'
+        }`}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -195,7 +239,11 @@ export function DreamEditor({
               style={{ background: signature.gradient }}
             />
             <textarea
-              className="relative h-full w-full resize-none rounded-md bg-transparent px-5 py-5 font-serif text-lg leading-8 text-mist-100 outline-none placeholder:text-mist-400/70 lg:px-8 lg:py-7"
+              className={`relative h-full w-full resize-none rounded-md bg-transparent font-serif leading-8 text-mist-100 outline-none placeholder:text-mist-400/70 ${
+                isCaptureMode
+                  ? 'px-5 py-5 text-xl lg:px-9 lg:py-8'
+                  : 'px-5 py-5 text-lg lg:px-8 lg:py-7'
+              }`}
               onChange={(event) => onTextChange(event.target.value)}
               placeholder="Write what stayed with you: places, fragments, voices, colors..."
               spellCheck="true"

@@ -18,6 +18,9 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - Поиск по тексту записи и AI-слоям анализа.
 - Редактирование title, date, mood и удаление записей.
 - Первый Atlas View с агрегацией symbols, emotions, places, characters и recurring themes.
+- Мобильные режимы List / Write / Insights / Atlas вместо одной длинной страницы.
+- Локальный autosave indicator и быстрый capture mode для записи сна.
+- Фильтры списка по date, mood, theme и analysis status.
 
 ## Продуктовое ядро
 
@@ -65,10 +68,10 @@ Dream Atlas должен ощущаться не как обычный note-taki
 
 Цель: сделать продукт удобным для ежедневного использования.
 
-- Переработать mobile UX: список, редактор и insights должны быть отдельными понятными состояниями, а не длинной вертикальной страницей.
-- Добавить autosave indicator.
-- Добавить быстрый morning capture mode: минимум UI, максимум места для текста.
-- Добавить фильтры по датам, настроению, темам и наличию анализа.
+- [x] Переработать mobile UX: список, редактор и insights должны быть отдельными понятными состояниями, а не длинной вертикальной страницей.
+- [x] Добавить autosave indicator.
+- [x] Добавить быстрый morning capture mode: минимум UI, максимум места для текста.
+- [x] Добавить фильтры по датам, настроению, темам и наличию анализа.
 - Добавить экспорт данных в JSON или Markdown.
 - Добавить импорт локального backup.
 
@@ -149,12 +152,10 @@ npm run lint
 
 ## Следующий лучший шаг
 
-Самый полезный следующий шаг: перейти к Phase 3 и сделать дневник удобным для ежедневного использования.
+Самый полезный следующий шаг: завершить Phase 3 data portability и затем вынести `/api/analyze-dream` в production-ready backend/deployment target.
 
 Это значит:
 
-1. Переработать mobile UX: список, редактор и insights/atlas как отдельные состояния.
-2. Добавить autosave indicator.
-3. Добавить fast capture mode.
-4. Добавить фильтры по датам, настроению, темам и наличию анализа.
-5. После этого вынести `/api/analyze-dream` в production-ready backend/deployment target.
+1. Добавить экспорт данных в JSON или Markdown.
+2. Добавить импорт локального backup с валидацией структуры.
+3. После этого вынести `/api/analyze-dream` в production-ready backend/deployment target.
