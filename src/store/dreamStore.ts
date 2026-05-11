@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { analyzeDreamText } from '../api/analyzeDreamClient'
 import { mockDreams } from '../data/mockDreams'
+import { normalizeDreamEntry } from '../utils/dreamBackup'
 import type { DreamAnalysis, DreamEntry } from '../types/dream'
 
 const blankAnalysis: DreamAnalysis = {
@@ -15,68 +16,6 @@ const blankAnalysis: DreamAnalysis = {
     { label: 'unclear', intensity: 18 },
   ],
   recurringThemes: [],
-}
-
-type LegacyAnalysis = Partial<DreamAnalysis> & {
-  emotions?: Array<string | { label: string; intensity?: number }>
-  symbols?: Array<string | { label: string; meaning?: string }>
-}
-
-type LegacyDream = Partial<DreamEntry> & {
-  insights?: LegacyAnalysis
-  analysis?: LegacyAnalysis
-}
-
-function normalizeAnalysis(value: LegacyAnalysis | undefined): DreamAnalysis {
-  const source = value ?? blankAnalysis
-
-  return {
-    summary:
-      typeof source.summary === 'string' ? source.summary : blankAnalysis.summary,
-    tone: typeof source.tone === 'string' ? source.tone : blankAnalysis.tone,
-    emotions: Array.isArray(source.emotions)
-      ? source.emotions.map((emotion) =>
-          typeof emotion === 'string'
-            ? { label: emotion, intensity: 50 }
-            : {
-                label: emotion.label,
-                intensity:
-                  typeof emotion.intensity === 'number'
-                    ? emotion.intensity
-                    : 50,
-              },
-        )
-      : blankAnalysis.emotions,
-    symbols: Array.isArray(source.symbols)
-      ? source.symbols.map((symbol) =>
-          typeof symbol === 'string'
-            ? { label: symbol, meaning: 'Meaning not assigned yet.' }
-            : {
-                label: symbol.label,
-                meaning: symbol.meaning ?? 'Meaning not assigned yet.',
-              },
-        )
-      : [],
-    places: Array.isArray(source.places) ? source.places : [],
-    characters: Array.isArray(source.characters) ? source.characters : [],
-    recurringThemes: Array.isArray(source.recurringThemes)
-      ? source.recurringThemes
-      : [],
-  }
-}
-
-function normalizeDream(dream: LegacyDream): DreamEntry {
-  const mockDream = mockDreams.find((item) => item.id === dream.id)
-
-  return {
-    id: dream.id ?? `dream-${Date.now().toString(36)}`,
-    title: dream.title ?? mockDream?.title ?? 'Untitled Dream',
-    date: dream.date ?? mockDream?.date ?? '',
-    time: dream.time ?? mockDream?.time ?? '',
-    mood: dream.mood ?? mockDream?.mood ?? 'unlabeled',
-    text: dream.text ?? mockDream?.text ?? '',
-    analysis: normalizeAnalysis(mockDream?.analysis ?? dream.analysis ?? dream.insights),
-  }
 }
 
 function createDreamEntry(): DreamEntry {
@@ -114,6 +53,7 @@ type DreamState = {
   updateDreamMood: (id: string, mood: string) => void
   updateDreamTitle: (id: string, title: string) => void
   updateDreamText: (id: string, text: string) => void
+  importDreams: (dreams: DreamEntry[]) => void
   analyzeSelectedDream: () => Promise<void>
 }
 
@@ -177,6 +117,13 @@ export const useDreamStore = create<DreamState>()(
             dream.id === id ? { ...dream, text } : dream,
           ),
         })),
+      importDreams: (dreams) =>
+        set({
+          analysisError: null,
+          analysisStatus: 'idle',
+          dreams,
+          selectedDreamId: dreams[0]?.id ?? '',
+        }),
       analyzeSelectedDream: async () => {
         const { dreams, selectedDreamId } = get()
         const selectedDream = dreams.find((dream) => dream.id === selectedDreamId)
@@ -217,13 +164,15 @@ export const useDreamStore = create<DreamState>()(
       version: 3,
       migrate: (persisted) => {
         const state = persisted as {
-          dreams?: LegacyDream[]
+          dreams?: unknown[]
           selectedDreamId?: string
         }
 
         return {
           dreams: Array.isArray(state.dreams)
-            ? state.dreams.map(normalizeDream)
+            ? state.dreams.map((dream, index) =>
+                normalizeDreamEntry(dream, index),
+              )
             : mockDreams,
           selectedDreamId: state.selectedDreamId ?? mockDreams[0].id,
         }

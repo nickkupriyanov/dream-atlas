@@ -21,6 +21,7 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - Мобильные режимы List / Write / Insights / Atlas вместо одной длинной страницы.
 - Локальный autosave indicator и быстрый capture mode для записи сна.
 - Фильтры списка по date, mood, theme и analysis status.
+- Экспорт дневника в JSON или Markdown и импорт локального JSON backup.
 
 ## Продуктовое ядро
 
@@ -72,8 +73,8 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - [x] Добавить autosave indicator.
 - [x] Добавить быстрый morning capture mode: минимум UI, максимум места для текста.
 - [x] Добавить фильтры по датам, настроению, темам и наличию анализа.
-- Добавить экспорт данных в JSON или Markdown.
-- Добавить импорт локального backup.
+- [x] Добавить экспорт данных в JSON или Markdown.
+- [x] Добавить импорт локального backup.
 
 Критерий готовности: приложение не только красиво выглядит, но и выдерживает регулярное использование.
 
@@ -152,10 +153,10 @@ npm run lint
 
 ## Следующий лучший шаг
 
-Самый полезный следующий шаг: завершить Phase 3 data portability и затем вынести `/api/analyze-dream` в production-ready backend/deployment target.
+Самый полезный следующий шаг: вынести `/api/analyze-dream` в production-ready backend/deployment target.
 
 Это значит:
 
-1. Добавить экспорт данных в JSON или Markdown.
-2. Добавить импорт локального backup с валидацией структуры.
-3. После этого вынести `/api/analyze-dream` в production-ready backend/deployment target.
+1. Выбрать deployment target для API route.
+2. Перенести текущую Vite dev middleware-логику в production-compatible handler.
+3. Сохранить локальный fallback-анализ для разработки без API key.

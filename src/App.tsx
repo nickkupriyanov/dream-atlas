@@ -5,10 +5,20 @@ import { DreamEditor } from './components/DreamEditor'
 import { DreamList } from './components/DreamList'
 import { InsightsPanel } from './components/InsightsPanel'
 import { useDreamStore } from './store/dreamStore'
+import {
+  createDreamJsonBackup,
+  createDreamMarkdownBackup,
+  downloadTextFile,
+  parseDreamBackup,
+} from './utils/dreamBackup'
 
 type RightPanelMode = 'insights' | 'atlas'
 type MobileView = 'list' | 'editor' | 'insights' | 'atlas'
 type SaveStatus = 'saved' | 'saving'
+type BackupStatus = {
+  tone: 'idle' | 'success' | 'error'
+  message: string
+}
 
 const mobileViews: {
   icon: typeof List
@@ -27,6 +37,10 @@ function App() {
   const [mobileView, setMobileView] = useState<MobileView>('editor')
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved')
   const [isCaptureMode, setIsCaptureMode] = useState(false)
+  const [backupStatus, setBackupStatus] = useState<BackupStatus>({
+    message: '',
+    tone: 'idle',
+  })
   const {
     analysisError,
     analysisStatus,
@@ -34,6 +48,7 @@ function App() {
     createDream,
     deleteDream,
     dreams,
+    importDreams,
     selectDream,
     selectedDreamId,
     updateDreamDate,
@@ -68,6 +83,58 @@ function App() {
     setMobileView('editor')
   }
 
+  function createBackupFilename(extension: 'json' | 'md') {
+    const date = new Date().toISOString().slice(0, 10)
+
+    return `dream-atlas-${date}.${extension}`
+  }
+
+  function exportJsonBackup() {
+    downloadTextFile(
+      createBackupFilename('json'),
+      createDreamJsonBackup(dreams),
+      'application/json',
+    )
+    setBackupStatus({
+      message: `Exported ${dreams.length} dreams as JSON.`,
+      tone: 'success',
+    })
+  }
+
+  function exportMarkdownBackup() {
+    downloadTextFile(
+      createBackupFilename('md'),
+      createDreamMarkdownBackup(dreams),
+      'text/markdown',
+    )
+    setBackupStatus({
+      message: `Exported ${dreams.length} dreams as Markdown.`,
+      tone: 'success',
+    })
+  }
+
+  async function importBackup(file: File) {
+    try {
+      const contents = await file.text()
+      const nextDreams = parseDreamBackup(JSON.parse(contents))
+
+      importDreams(nextDreams)
+      setMobileView('list')
+      setBackupStatus({
+        message: `Imported ${nextDreams.length} dreams from backup.`,
+        tone: 'success',
+      })
+    } catch (error) {
+      setBackupStatus({
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Unable to import this backup.',
+        tone: 'error',
+      })
+    }
+  }
+
   return (
     <div className="relative h-screen overflow-hidden bg-night-950 text-mist-100">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_24%_0%,rgba(155,140,255,0.13),transparent_34%),radial-gradient(circle_at_82%_18%,rgba(216,201,155,0.10),transparent_30%),linear-gradient(180deg,rgba(8,10,16,0),rgba(8,10,16,0.72))]" />
@@ -100,8 +167,12 @@ function App() {
           }`}
         >
           <DreamList
+            backupStatus={backupStatus}
             dreams={dreams}
+            onExportJson={exportJsonBackup}
+            onExportMarkdown={exportMarkdownBackup}
             onCreateDream={createAndOpenDream}
+            onImportBackup={importBackup}
             onSelectDream={selectAndOpenDream}
             selectedDreamId={selectedDream?.id ?? ''}
           />

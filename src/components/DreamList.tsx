@@ -1,7 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import {
   CalendarDays,
+  Download,
+  FileText,
+  FileUp,
   Moon,
   Plus,
   Search,
@@ -13,18 +16,30 @@ import type { DreamEntry } from '../types/dream'
 import { getDreamSignature, getDreamTitle } from '../utils/dreamSignature'
 
 type DreamListProps = {
+  backupStatus: {
+    tone: 'idle' | 'success' | 'error'
+    message: string
+  }
   dreams: DreamEntry[]
   selectedDreamId: string
   onCreateDream: () => void
+  onExportJson: () => void
+  onExportMarkdown: () => void
+  onImportBackup: (file: File) => void
   onSelectDream: (id: string) => void
 }
 
 export function DreamList({
+  backupStatus,
   dreams,
   selectedDreamId,
   onCreateDream,
+  onExportJson,
+  onExportMarkdown,
+  onImportBackup,
   onSelectDream,
 }: DreamListProps) {
+  const importInputRef = useRef<HTMLInputElement>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [dateFilter, setDateFilter] = useState('')
   const [moodFilter, setMoodFilter] = useState('all')
@@ -115,6 +130,15 @@ export function DreamList({
     setMoodFilter('all')
     setThemeFilter('')
     setAnalysisFilter('all')
+  }
+
+  function handleImportChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+
+    if (file) {
+      onImportBackup(file)
+      event.target.value = ''
+    }
   }
 
   return (
@@ -208,6 +232,62 @@ export function DreamList({
               <option value="unread">Unread</option>
             </select>
           </div>
+        </div>
+
+        <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
+              <Download size={13} />
+              Backup
+            </div>
+            <span className="text-[11px] text-mist-400">
+              {dreams.length} notes
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              aria-label="Export JSON backup"
+              className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-tide/25 hover:text-tide focus-visible:ring-2 focus-visible:ring-tide/20 disabled:cursor-not-allowed disabled:opacity-45"
+              disabled={dreams.length === 0}
+              onClick={onExportJson}
+              type="button"
+            >
+              <Download size={14} />
+            </button>
+            <button
+              aria-label="Export Markdown backup"
+              className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-moon/25 hover:text-moon focus-visible:ring-2 focus-visible:ring-moon/20 disabled:cursor-not-allowed disabled:opacity-45"
+              disabled={dreams.length === 0}
+              onClick={onExportMarkdown}
+              type="button"
+            >
+              <FileText size={14} />
+            </button>
+            <button
+              aria-label="Import JSON backup"
+              className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-iris/25 hover:text-iris focus-visible:ring-2 focus-visible:ring-iris/20"
+              onClick={() => importInputRef.current?.click()}
+              type="button"
+            >
+              <FileUp size={14} />
+            </button>
+          </div>
+          <input
+            accept="application/json,.json"
+            className="hidden"
+            onChange={handleImportChange}
+            ref={importInputRef}
+            type="file"
+          />
+          {backupStatus.tone !== 'idle' ? (
+            <p
+              className={`mt-2 text-[11px] leading-4 ${
+                backupStatus.tone === 'error' ? 'text-ember' : 'text-tide'
+              }`}
+            >
+              {backupStatus.message}
+            </p>
+          ) : null}
         </div>
       </div>
 

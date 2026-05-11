@@ -24,6 +24,7 @@ This is a React + TypeScript + Vite app with:
 - Emotion timeline, atlas signal filters and expandable related dream lists.
 - Mobile List / Write / Insights / Atlas modes.
 - Local autosave status, fast capture mode, and list filters.
+- JSON/Markdown export and validated local JSON backup import.
 
 Important gap: `/api/analyze-dream` currently lives in Vite dev middleware. A production deployment path is still needed.
 
@@ -139,7 +140,7 @@ Avoid:
 - Add autosave status. Done.
 - Add fast capture mode. Done.
 - Add filters. Done.
-- Add export and import.
+- Add export and import. Done.
 
 ### Phase 4: Reflection
 
@@ -158,8 +159,8 @@ Avoid:
 
 ## Current Best Next Task
 
-Finish Phase 3 data portability:
+Move the analysis endpoint out of Vite dev middleware:
 
-1. Add JSON or Markdown export.
-2. Add local backup import.
-3. Validate imported dream data before writing it to persisted state.
+1. Choose a production deployment target for `/api/analyze-dream`.
+2. Move the existing analysis handler into a production-compatible module.
+3. Keep the deterministic local fallback for development without an API key.
