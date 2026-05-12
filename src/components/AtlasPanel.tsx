@@ -355,6 +355,15 @@ type AtlasButtonProps = {
 
 function AtlasButton({ item, onSelectDream }: AtlasButtonProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const feedbackSummary = [
+    item.feedbackCounts?.personal
+      ? `${item.feedbackCounts.personal} personal`
+      : '',
+    item.feedbackCounts?.questionable
+      ? `${item.feedbackCounts.questionable} unsure`
+      : '',
+    item.feedbackCounts?.wrong ? `${item.feedbackCounts.wrong} wrong` : '',
+  ].filter(Boolean)
 
   return (
     <div className="rounded border border-white/[0.08] bg-night-950/[0.38] transition hover:border-moon/25 hover:bg-moon/[0.055]">
@@ -381,6 +390,18 @@ function AtlasButton({ item, onSelectDream }: AtlasButtonProps) {
               size={13}
             />
           </div>
+          {feedbackSummary.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {feedbackSummary.map((feedback) => (
+                <span
+                  className="rounded border border-moon/[0.16] bg-moon/[0.06] px-1.5 py-0.5 text-[10px] text-moon"
+                  key={feedback}
+                >
+                  {feedback}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </button>
         <button
           aria-label={`${isExpanded ? 'Hide' : 'Show'} related dreams for ${item.label}`}

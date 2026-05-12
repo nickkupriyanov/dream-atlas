@@ -14,6 +14,8 @@ export type DreamAnalysis = {
   recurringThemes: string[]
 }
 
+export type SymbolFeedbackStatus = 'personal' | 'questionable' | 'wrong'
+
 export type DreamEntry = {
   id: string
   title: string
@@ -22,4 +24,6 @@ export type DreamEntry = {
   mood: string
   text: string
   analysis: DreamAnalysis
+  reflectionNotes?: string
+  symbolFeedback?: Record<string, SymbolFeedbackStatus>
 }

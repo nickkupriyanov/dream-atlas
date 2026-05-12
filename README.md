@@ -13,7 +13,8 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - Zustand persist для локального хранения дневника.
 - Список снов, редактор записи и панель AI insights.
 - Моковые записи, которые задают тон продукта.
-- Dev endpoint `/api/analyze-dream` в `vite.config.ts`.
+- Production-compatible `/api/analyze-dream` route в `api/analyze-dream.ts`.
+- Vite dev middleware использует тот же server handler во время разработки.
 - Локальный fallback-анализ, если `OPENAI_API_KEY` не задан.
 - Поиск по тексту записи и AI-слоям анализа.
 - Редактирование title, date, mood и удаление записей.
@@ -22,6 +23,8 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - Локальный autosave indicator и быстрый capture mode для записи сна.
 - Фильтры списка по date, mood, theme и analysis status.
 - Экспорт дневника в JSON или Markdown и импорт локального JSON backup.
+- Weekly digest, похожие прошлые сны и личные заметки к AI-интерпретации.
+- Статусы AI-символов: personal, questionable, wrong.
 
 ## Продуктовое ядро
 
@@ -46,7 +49,7 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - [x] Добавить базовые действия с записями: удалить, переименовать, изменить дату, изменить mood.
 - [x] Сделать поиск по title, text, symbols, places, characters и themes.
 - Обновить empty/error/loading states так, чтобы они помогали пользователю, а не выглядели как технические заглушки.
-- Добавить production-ready API deployment path вне Vite dev middleware.
+- [x] Добавить production-ready API deployment path вне Vite dev middleware.
 
 Критерий готовности: пользователь может создать сон, проанализировать его, найти позже и увидеть сохраненный анализ после перезагрузки.
 
@@ -82,11 +85,11 @@ Dream Atlas должен ощущаться не как обычный note-taki
 
 Цель: превратить набор записей в личную систему наблюдений.
 
-- Еженедельный дайджест снов.
-- "You may be circling..." insights на основе повторяющихся паттернов.
-- Сравнение текущего сна с похожими прошлыми снами.
-- Ручные заметки пользователя к AI-интерпретации.
-- Возможность помечать символы как личные, спорные или неверные.
+- [x] Еженедельный дайджест снов.
+- [x] "You may be circling..." insights на основе повторяющихся паттернов.
+- [x] Сравнение текущего сна с похожими прошлыми снами.
+- [x] Ручные заметки пользователя к AI-интерпретации.
+- [x] Возможность помечать символы как личные, спорные или неверные.
 
 Критерий готовности: AI не просто выдает интерпретацию, а учится вокруг личного языка пользователя.
 
@@ -111,6 +114,8 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - `src/store/dreamStore.ts` - Zustand store, persistence, создание и обновление снов.
 - `src/types/dream.ts` - доменная модель сна и анализа.
 - `src/api/analyzeDreamClient.ts` - клиентский вызов анализа.
+- `src/server/dreamAnalysis.ts` - общий server handler для AI анализа и fallback.
+- `api/analyze-dream.ts` - production-compatible API route для Vercel.
 - `src/components/DreamList.tsx` - список записей.
 - `src/components/DreamEditor.tsx` - редактор выбранного сна.
 - `src/components/InsightsPanel.tsx` - панель анализа одного сна.
@@ -153,10 +158,10 @@ npm run lint
 
 ## Следующий лучший шаг
 
-Самый полезный следующий шаг: вынести `/api/analyze-dream` в production-ready backend/deployment target.
+Самый полезный следующий шаг: перейти к Phase 5 trust, privacy and release hardening.
 
 Это значит:
 
-1. Выбрать deployment target для API route.
-2. Перенести текущую Vite dev middleware-логику в production-compatible handler.
-3. Сохранить локальный fallback-анализ для разработки без API key.
+1. Добавить privacy-first copy и настройки удаления данных.
+2. Покрыть store, analysis и atlas aggregation тестами.
+3. Провести accessibility pass и уточнить deployment-документацию.

@@ -16,7 +16,8 @@ This is a React + TypeScript + Vite app with:
 - A dream list.
 - A dream editor.
 - An insights panel for one selected dream.
-- A dev API endpoint for `/api/analyze-dream` in `vite.config.ts`.
+- A production-compatible API route for `/api/analyze-dream` in `api/analyze-dream.ts`.
+- Vite dev middleware that reuses the same server analysis handler.
 - A local fallback analyzer when `OPENAI_API_KEY` is missing.
 - Functional search across notes and analysis fields.
 - Basic title, date, mood and delete controls.
@@ -25,8 +26,10 @@ This is a React + TypeScript + Vite app with:
 - Mobile List / Write / Insights / Atlas modes.
 - Local autosave status, fast capture mode, and list filters.
 - JSON/Markdown export and validated local JSON backup import.
+- Weekly digest, similar past dreams, and user reflection notes.
+- AI symbol feedback statuses: personal, questionable, wrong.
 
-Important gap: `/api/analyze-dream` currently lives in Vite dev middleware. A production deployment path is still needed.
+Deployment note: `/api/analyze-dream` is currently shaped as a Vercel serverless route, with Vite middleware kept as the local development wrapper.
 
 ## Product Direction
 
@@ -105,6 +108,8 @@ Avoid:
 - `src/store/dreamStore.ts` - Zustand store and persistence.
 - `src/types/dream.ts` - core domain types.
 - `src/api/analyzeDreamClient.ts` - frontend analysis client.
+- `src/server/dreamAnalysis.ts` - shared server analysis logic.
+- `api/analyze-dream.ts` - production-compatible API route.
 - `src/components/DreamList.tsx` - dream list.
 - `src/components/DreamEditor.tsx` - editor.
 - `src/components/InsightsPanel.tsx` - selected dream insights.
@@ -122,7 +127,7 @@ Avoid:
 - Add local fallback when no API key is configured. Done.
 - Add delete, date, mood and title editing. Done.
 - Make search functional. Done.
-- Add production-ready API deployment path. Pending.
+- Add production-ready API deployment path. Done with a Vercel-compatible route.
 - Continue polishing error, retry and empty states. Pending.
 
 ### Phase 2: Atlas View
@@ -144,10 +149,10 @@ Avoid:
 
 ### Phase 4: Reflection
 
-- Add weekly summaries.
-- Compare a new dream with similar old dreams.
-- Let users annotate AI insights.
-- Let users mark AI symbols as useful, wrong or personal.
+- Add weekly summaries. Done.
+- Compare a new dream with similar old dreams. Done.
+- Let users annotate AI insights. Done.
+- Let users mark AI symbols as useful, wrong or personal. Done.
 
 ### Phase 5: Trust and Release
 
@@ -159,8 +164,8 @@ Avoid:
 
 ## Current Best Next Task
 
-Move the analysis endpoint out of Vite dev middleware:
+Start Phase 5 trust and release hardening:
 
-1. Choose a production deployment target for `/api/analyze-dream`.
-2. Move the existing analysis handler into a production-compatible module.
-3. Keep the deterministic local fallback for development without an API key.
+1. Add privacy-first copy and local data deletion settings.
+2. Add focused tests for store, analysis and atlas aggregation.
+3. Improve accessibility and deployment documentation.

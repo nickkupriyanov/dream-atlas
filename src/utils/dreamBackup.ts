@@ -1,4 +1,8 @@
-import type { DreamAnalysis, DreamEntry } from '../types/dream'
+import type {
+  DreamAnalysis,
+  DreamEntry,
+  SymbolFeedbackStatus,
+} from '../types/dream'
 
 const blankAnalysis: DreamAnalysis = {
   characters: [],
@@ -29,6 +33,34 @@ function readStringArray(value: unknown) {
   }
 
   return value.filter((item): item is string => typeof item === 'string')
+}
+
+function normalizeSymbolLabel(label: string) {
+  return label.trim().toLowerCase()
+}
+
+function readSymbolFeedback(value: unknown) {
+  if (!isRecord(value)) {
+    return {}
+  }
+
+  return Object.entries(value).reduce<Record<string, SymbolFeedbackStatus>>(
+    (feedback, [label, status]) => {
+      const normalizedLabel = normalizeSymbolLabel(label)
+
+      if (
+        normalizedLabel &&
+        (status === 'personal' ||
+          status === 'questionable' ||
+          status === 'wrong')
+      ) {
+        feedback[normalizedLabel] = status
+      }
+
+      return feedback
+    },
+    {},
+  )
 }
 
 function readAnalysis(value: unknown): DreamAnalysis {
@@ -94,6 +126,8 @@ export function normalizeDreamEntry(value: unknown, index = 0): DreamEntry {
     date: readString(source.date, ''),
     id,
     mood: readString(source.mood, 'unlabeled'),
+    reflectionNotes: readString(source.reflectionNotes, ''),
+    symbolFeedback: readSymbolFeedback(source.symbolFeedback),
     text: readString(source.text, ''),
     time: readString(source.time, ''),
     title: readString(source.title, 'Untitled Dream'),
@@ -150,6 +184,7 @@ export function createDreamMarkdownBackup(dreams: DreamEntry[]) {
       `Date: ${dream.date || 'unlabeled'}`,
       `Time: ${dream.time || 'unlabeled'}`,
       `Mood: ${dream.mood || 'unlabeled'}`,
+      dream.reflectionNotes ? `Reflection notes: ${dream.reflectionNotes}` : '',
       '',
       dream.text || '_No text recorded._',
       '',

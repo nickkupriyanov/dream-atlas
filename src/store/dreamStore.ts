@@ -3,7 +3,11 @@ import { persist } from 'zustand/middleware'
 import { analyzeDreamText } from '../api/analyzeDreamClient'
 import { mockDreams } from '../data/mockDreams'
 import { normalizeDreamEntry } from '../utils/dreamBackup'
-import type { DreamAnalysis, DreamEntry } from '../types/dream'
+import type {
+  DreamAnalysis,
+  DreamEntry,
+  SymbolFeedbackStatus,
+} from '../types/dream'
 
 const blankAnalysis: DreamAnalysis = {
   symbols: [],
@@ -36,6 +40,8 @@ function createDreamEntry(): DreamEntry {
       hour12: false,
     }),
     mood: 'unlabeled',
+    reflectionNotes: '',
+    symbolFeedback: {},
     text: '',
     analysis: blankAnalysis,
   }
@@ -51,6 +57,12 @@ type DreamState = {
   deleteDream: (id: string) => void
   updateDreamDate: (id: string, date: string) => void
   updateDreamMood: (id: string, mood: string) => void
+  updateDreamReflectionNotes: (id: string, notes: string) => void
+  updateDreamSymbolFeedback: (
+    id: string,
+    symbolLabel: string,
+    status: SymbolFeedbackStatus | null,
+  ) => void
   updateDreamTitle: (id: string, title: string) => void
   updateDreamText: (id: string, text: string) => void
   importDreams: (dreams: DreamEntry[]) => void
@@ -101,6 +113,36 @@ export const useDreamStore = create<DreamState>()(
           dreams: state.dreams.map((dream) =>
             dream.id === id ? { ...dream, mood } : dream,
           ),
+        })),
+      updateDreamReflectionNotes: (id, notes) =>
+        set((state) => ({
+          dreams: state.dreams.map((dream) =>
+            dream.id === id ? { ...dream, reflectionNotes: notes } : dream,
+          ),
+        })),
+      updateDreamSymbolFeedback: (id, symbolLabel, status) =>
+        set((state) => ({
+          dreams: state.dreams.map((dream) => {
+            if (dream.id !== id) {
+              return dream
+            }
+
+            const normalizedLabel = symbolLabel.trim().toLowerCase()
+
+            if (!normalizedLabel) {
+              return dream
+            }
+
+            const symbolFeedback = { ...(dream.symbolFeedback ?? {}) }
+
+            if (status) {
+              symbolFeedback[normalizedLabel] = status
+            } else {
+              delete symbolFeedback[normalizedLabel]
+            }
+
+            return { ...dream, symbolFeedback }
+          }),
         })),
       updateDreamTitle: (id, title) =>
         set((state) => ({

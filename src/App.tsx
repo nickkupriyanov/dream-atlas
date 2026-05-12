@@ -53,6 +53,8 @@ function App() {
     selectedDreamId,
     updateDreamDate,
     updateDreamMood,
+    updateDreamReflectionNotes,
+    updateDreamSymbolFeedback,
     updateDreamTitle,
     updateDreamText,
   } = useDreamStore()
@@ -256,9 +258,27 @@ function App() {
                 </button>
               </div>
             </div>
-            {(mobileView === 'insights' && rightPanelMode !== 'atlas') ||
+            {mobileView === 'insights' ||
             (mobileView !== 'atlas' && rightPanelMode === 'insights') ? (
-              <InsightsPanel dream={selectedDream} />
+              <InsightsPanel
+                dream={selectedDream}
+                dreams={dreams}
+                onReflectionNotesChange={(notes) => {
+                  if (selectedDream) {
+                    updateDreamReflectionNotes(selectedDream.id, notes)
+                  }
+                }}
+                onSelectDream={selectAndOpenDream}
+                onSymbolFeedbackChange={(symbolLabel, status) => {
+                  if (selectedDream) {
+                    updateDreamSymbolFeedback(
+                      selectedDream.id,
+                      symbolLabel,
+                      status,
+                    )
+                  }
+                }}
+              />
             ) : (
               <AtlasPanel dreams={dreams} onSelectDream={selectAndOpenDream} />
             )}

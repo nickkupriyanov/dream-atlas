@@ -1,4 +1,4 @@
-import type { DreamEntry } from '../types/dream'
+import type { DreamEntry, SymbolFeedbackStatus } from '../types/dream'
 import { getDreamTitle } from './dreamSignature'
 
 export type AtlasItem = {
@@ -9,6 +9,7 @@ export type AtlasItem = {
   latestDreamDate: string
   dreamIds: string[]
   relatedDreams: AtlasRelatedDream[]
+  feedbackCounts?: Partial<Record<SymbolFeedbackStatus, number>>
 }
 
 export type EmotionAtlasItem = AtlasItem & {
@@ -52,6 +53,10 @@ function normalizeLabel(label: string) {
   return label.trim().toLowerCase()
 }
 
+function getSymbolFeedback(dream: DreamEntry, label: string) {
+  return dream.symbolFeedback?.[normalizeLabel(label)]
+}
+
 function sortAtlasItems<T extends AtlasItem>(items: T[]) {
   return [...items].sort((first, second) => {
     if (second.count !== first.count) {
@@ -88,12 +93,23 @@ function addAtlasItem(
     existing.count += 1
     existing.dreamIds.push(dream.id)
     existing.relatedDreams.push(toRelatedDream(dream))
+    const feedback = getSymbolFeedback(dream, label)
+
+    if (feedback) {
+      existing.feedbackCounts = {
+        ...existing.feedbackCounts,
+        [feedback]: (existing.feedbackCounts?.[feedback] ?? 0) + 1,
+      }
+    }
     return
   }
+
+  const feedback = getSymbolFeedback(dream, label)
 
   items.set(normalizedLabel, {
     count: 1,
     dreamIds: [dream.id],
+    feedbackCounts: feedback ? { [feedback]: 1 } : undefined,
     label: label.trim(),
     latestDreamDate: dream.date,
     latestDreamId: dream.id,
