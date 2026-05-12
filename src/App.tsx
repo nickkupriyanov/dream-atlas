@@ -19,6 +19,10 @@ type BackupStatus = {
   tone: 'idle' | 'success' | 'error'
   message: string
 }
+type PrivacyStatus = {
+  tone: 'idle' | 'success'
+  message: string
+}
 
 const mobileViews: {
   icon: typeof List
@@ -41,10 +45,15 @@ function App() {
     message: '',
     tone: 'idle',
   })
+  const [privacyStatus, setPrivacyStatus] = useState<PrivacyStatus>({
+    message: '',
+    tone: 'idle',
+  })
   const {
     analysisError,
     analysisStatus,
     analyzeSelectedDream,
+    clearDreams,
     createDream,
     deleteDream,
     dreams,
@@ -137,6 +146,24 @@ function App() {
     }
   }
 
+  function clearLocalDreams() {
+    const confirmed = window.confirm(
+      'Delete every local dream note from this browser? Export a JSON backup first if you may want them later.',
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    clearDreams()
+    setMobileView('list')
+    setBackupStatus({ message: '', tone: 'idle' })
+    setPrivacyStatus({
+      message: 'Local journal data deleted from this browser.',
+      tone: 'success',
+    })
+  }
+
   return (
     <div className="relative h-screen overflow-hidden bg-night-950 text-mist-100">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_24%_0%,rgba(155,140,255,0.13),transparent_34%),radial-gradient(circle_at_82%_18%,rgba(216,201,155,0.10),transparent_30%),linear-gradient(180deg,rgba(8,10,16,0),rgba(8,10,16,0.72))]" />
@@ -147,6 +174,7 @@ function App() {
 
             return (
               <button
+                aria-pressed={mobileView === view.value}
                 className={`flex h-10 items-center justify-center gap-1.5 rounded-md text-[11px] font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-moon/20 ${
                   mobileView === view.value
                     ? 'bg-white/[0.08] text-mist-100'
@@ -173,9 +201,11 @@ function App() {
             dreams={dreams}
             onExportJson={exportJsonBackup}
             onExportMarkdown={exportMarkdownBackup}
+            onClearLocalDreams={clearLocalDreams}
             onCreateDream={createAndOpenDream}
             onImportBackup={importBackup}
             onSelectDream={selectAndOpenDream}
+            privacyStatus={privacyStatus}
             selectedDreamId={selectedDream?.id ?? ''}
           />
         </div>
@@ -235,22 +265,24 @@ function App() {
             <div className="hidden border-b border-white/[0.08] px-4 py-3 lg:block">
               <div className="grid grid-cols-2 rounded-md border border-white/[0.08] bg-night-950/[0.4] p-1">
                 <button
-                  className={`h-8 rounded text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-moon/20 ${
-                    rightPanelMode === 'insights'
-                      ? 'bg-white/[0.08] text-mist-100'
-                      : 'text-mist-400 hover:text-mist-200'
+                className={`h-8 rounded text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-moon/20 ${
+                  rightPanelMode === 'insights'
+                    ? 'bg-white/[0.08] text-mist-100'
+                    : 'text-mist-400 hover:text-mist-200'
                   }`}
+                  aria-pressed={rightPanelMode === 'insights'}
                   onClick={() => setRightPanelMode('insights')}
                   type="button"
                 >
                   Insights
                 </button>
                 <button
-                  className={`h-8 rounded text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-tide/20 ${
-                    rightPanelMode === 'atlas'
-                      ? 'bg-white/[0.08] text-mist-100'
-                      : 'text-mist-400 hover:text-mist-200'
+                className={`h-8 rounded text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-tide/20 ${
+                  rightPanelMode === 'atlas'
+                    ? 'bg-white/[0.08] text-mist-100'
+                    : 'text-mist-400 hover:text-mist-200'
                   }`}
+                  aria-pressed={rightPanelMode === 'atlas'}
                   onClick={() => setRightPanelMode('atlas')}
                   type="button"
                 >

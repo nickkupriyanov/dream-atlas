@@ -62,6 +62,7 @@ export function DreamEditor({
         <button
           className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-moon/25 bg-moon/[0.12] px-4 text-sm font-medium text-moon outline-none transition hover:border-moon/[0.45] hover:bg-moon/[0.18] focus-visible:ring-2 focus-visible:ring-moon/20"
           onClick={onCreateDream}
+          type="button"
         >
           <Plus size={16} />
           New dream
@@ -239,6 +240,7 @@ export function DreamEditor({
               style={{ background: signature.gradient }}
             />
             <textarea
+              aria-label="Dream text"
               className={`relative h-full w-full resize-none rounded-md bg-transparent font-serif leading-8 text-mist-100 outline-none placeholder:text-mist-400/70 ${
                 isCaptureMode
                   ? 'px-5 py-5 text-xl lg:px-9 lg:py-8'

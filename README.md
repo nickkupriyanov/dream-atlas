@@ -97,12 +97,12 @@ Dream Atlas должен ощущаться не как обычный note-taki
 
 Цель: подготовить основу для приватного бета-релиза.
 
-- Privacy-first copy: данные снов чувствительные, это должно быть явно отражено в продукте.
-- Настройки хранения и удаления данных.
-- Тесты для store, анализа и atlas aggregation.
-- Accessibility pass: keyboard navigation, focus states, contrast, screen reader labels.
-- Production deployment path.
-- Нормальная документация для запуска, AI config и архитектуры.
+- [x] Privacy-first copy: данные снов чувствительные, это должно быть явно отражено в продукте.
+- [x] Настройки хранения и удаления данных.
+- [x] Тесты для store, анализа, import/export validation, atlas aggregation и ключевых UI flows.
+- Accessibility pass: keyboard navigation, focus states, contrast, screen reader labels. Started with pressed states, text-area labels, progress semantics and clearer button labels.
+- [x] Production deployment path.
+- [x] Нормальная документация для запуска, AI config и архитектуры. Started with private beta release checklist.
 
 Критерий готовности: проект можно дать первому пользователю без ощущения "это просто демо".
 
@@ -124,6 +124,8 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - `src/utils/dreamAtlas.ts` - агрегация symbols, emotions, places, characters и themes.
 
 ## Development
+
+Recommended runtime: Node.js 18.18+; Node 20 LTS is preferred for deploys.
 
 ```bash
 npm install
@@ -156,12 +158,30 @@ Lint:
 npm run lint
 ```
 
+Tests:
+
+```bash
+npm run test
+```
+
+Privacy and storage:
+
+- Dream notes are persisted locally in this browser through Zustand/localStorage.
+- JSON and Markdown export are available from the Backup panel.
+- The Privacy panel can delete the local journal from the current browser after confirmation.
+- AI analysis sends only the selected dream text to `/api/analyze-dream`; without `OPENAI_API_KEY`, the route uses the deterministic local fallback.
+
+Private beta release:
+
+- See `docs/private-beta-release.md` for environment, deployment, verification and beta trust checklist.
+- See `docs/beta-feedback-template.md` for first-user feedback prompts.
+
 ## Следующий лучший шаг
 
-Самый полезный следующий шаг: перейти к Phase 5 trust, privacy and release hardening.
+Самый полезный следующий шаг: провести первый реальный private beta QA session.
 
 Это значит:
 
-1. Добавить privacy-first copy и настройки удаления данных.
-2. Покрыть store, analysis и atlas aggregation тестами.
-3. Провести accessibility pass и уточнить deployment-документацию.
+1. Пройти основной сценарий с клавиатуры и на мобильном viewport.
+2. Дать приложение первому пользователю вместе с beta feedback template.
+3. По результатам QA закрыть найденные accessibility, copy и trust gaps.

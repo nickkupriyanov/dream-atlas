@@ -28,6 +28,11 @@ This is a React + TypeScript + Vite app with:
 - JSON/Markdown export and validated local JSON backup import.
 - Weekly digest, similar past dreams, and user reflection notes.
 - AI symbol feedback statuses: personal, questionable, wrong.
+- Privacy-first local storage copy and local journal deletion settings.
+- Focused Vitest coverage for store, analysis validation, import/export validation, atlas aggregation and critical App flows.
+- Accessibility pass started with pressed states, text-area labels, progress semantics and clearer button labels.
+- Private beta release checklist in `docs/private-beta-release.md`.
+- Beta feedback template in `docs/beta-feedback-template.md`.
 
 Deployment note: `/api/analyze-dream` is currently shaped as a Vercel serverless route, with Vite middleware kept as the local development wrapper.
 
@@ -156,16 +161,16 @@ Avoid:
 
 ### Phase 5: Trust and Release
 
-- Add privacy settings and copy.
-- Add tests.
-- Improve accessibility.
-- Define deployment.
-- Prepare for private beta.
+- Add privacy settings and copy. Done.
+- Add tests. Done for store, analysis, import/export, atlas aggregation and critical App flows.
+- Improve accessibility. Started.
+- Define deployment. Done with Vercel route and private beta checklist.
+- Prepare for private beta. Started.
 
 ## Current Best Next Task
 
-Start Phase 5 trust and release hardening:
+Run the first private beta QA pass:
 
-1. Add privacy-first copy and local data deletion settings.
-2. Add focused tests for store, analysis and atlas aggregation.
-3. Improve accessibility and deployment documentation.
+1. Walk through the core loop with keyboard navigation and a mobile viewport.
+2. Give the app to a first user with the beta feedback template.
+3. Triage resulting accessibility, copy and trust gaps.

@@ -5,11 +5,15 @@ import {
   Download,
   FileText,
   FileUp,
+  HardDrive,
+  LockKeyhole,
   Moon,
   Plus,
   Search,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkle,
+  Trash2,
   X,
 } from 'lucide-react'
 import type { DreamEntry } from '../types/dream'
@@ -21,7 +25,12 @@ type DreamListProps = {
     message: string
   }
   dreams: DreamEntry[]
+  privacyStatus: {
+    tone: 'idle' | 'success'
+    message: string
+  }
   selectedDreamId: string
+  onClearLocalDreams: () => void
   onCreateDream: () => void
   onExportJson: () => void
   onExportMarkdown: () => void
@@ -32,7 +41,9 @@ type DreamListProps = {
 export function DreamList({
   backupStatus,
   dreams,
+  privacyStatus,
   selectedDreamId,
+  onClearLocalDreams,
   onCreateDream,
   onExportJson,
   onExportMarkdown,
@@ -160,6 +171,7 @@ export function DreamList({
             aria-label="New dream"
             className="grid h-8 w-8 place-items-center rounded-md border border-white/10 bg-white/5 text-mist-300 outline-none transition hover:border-moon/30 hover:bg-moon/10 hover:text-moon focus-visible:border-moon/50 focus-visible:ring-2 focus-visible:ring-moon/20 active:scale-95"
             onClick={onCreateDream}
+            type="button"
           >
             <Plus size={16} />
           </button>
@@ -289,6 +301,41 @@ export function DreamList({
             </p>
           ) : null}
         </div>
+
+        <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
+              <ShieldCheck size={13} />
+              Privacy
+            </div>
+            <LockKeyhole size={13} className="text-mist-500" />
+          </div>
+          <div className="space-y-2 text-[11px] leading-4 text-mist-400">
+            <p className="flex gap-2">
+              <HardDrive size={13} className="mt-0.5 shrink-0 text-tide" />
+              Notes are stored in this browser. Export before switching devices
+              or clearing site data.
+            </p>
+            <p>
+              AI analysis sends only the selected dream text to the configured
+              backend.
+            </p>
+          </div>
+          <button
+            className="mt-3 inline-flex h-8 w-full items-center justify-center gap-2 rounded border border-ember/20 bg-ember/[0.06] px-2 text-xs font-medium text-ember outline-none transition hover:border-ember/35 hover:bg-ember/[0.1] focus-visible:ring-2 focus-visible:ring-ember/20 disabled:cursor-not-allowed disabled:opacity-45"
+            disabled={dreams.length === 0}
+            onClick={onClearLocalDreams}
+            type="button"
+          >
+            <Trash2 size={13} />
+            Delete local journal
+          </button>
+          {privacyStatus.tone !== 'idle' ? (
+            <p className="mt-2 text-[11px] leading-4 text-tide">
+              {privacyStatus.message}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3">
@@ -306,6 +353,7 @@ export function DreamList({
             <button
               className="mt-4 inline-flex h-9 items-center justify-center gap-2 rounded-md border border-moon/25 bg-moon/[0.1] px-3 text-xs font-medium text-moon outline-none transition hover:border-moon/40 hover:bg-moon/[0.16] focus-visible:ring-2 focus-visible:ring-moon/20"
               onClick={onCreateDream}
+              type="button"
             >
               <Plus size={14} />
               New dream
@@ -336,6 +384,8 @@ export function DreamList({
 
             return (
               <motion.button
+                aria-label={`Open dream: ${title}`}
+                aria-current={isSelected ? 'true' : undefined}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 className={`group relative w-full overflow-hidden rounded-md border p-3 text-left outline-none transition ${
                   isSelected

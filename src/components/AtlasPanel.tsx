@@ -72,6 +72,7 @@ export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
         <div className="mt-4 flex gap-1 overflow-x-auto rounded-md border border-white/[0.08] bg-night-950/[0.36] p-1">
           {signalFilters.map((filter) => (
             <button
+              aria-pressed={signalFilter === filter.value}
               className={`h-7 shrink-0 rounded px-2 text-[11px] font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-tide/20 ${
                 signalFilter === filter.value
                   ? 'bg-white/[0.08] text-mist-100'
@@ -218,6 +219,7 @@ function EmotionTimeline({ items, onSelectDream }: EmotionTimelineProps) {
         {items.length > 0 ? (
           items.slice(-7).map((item) => (
             <button
+              aria-label={`Open dream from ${item.date}: ${item.dreamTitle}`}
               className="group w-full rounded border border-white/[0.08] bg-night-950/[0.38] px-3 py-2 text-left outline-none transition hover:border-tide/25 hover:bg-tide/[0.055] focus-visible:ring-2 focus-visible:ring-tide/20"
               key={item.dreamId}
               onClick={() => onSelectDream(item.dreamId)}
@@ -233,7 +235,12 @@ function EmotionTimeline({ items, onSelectDream }: EmotionTimelineProps) {
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-night-950/[0.65]">
                 <div
+                  aria-label={`${item.dominantEmotion} intensity ${item.averageIntensity}%`}
                   className="h-full rounded-full bg-gradient-to-r from-tide via-moon to-ember"
+                  role="progressbar"
+                  aria-valuemax={100}
+                  aria-valuemin={0}
+                  aria-valuenow={item.averageIntensity}
                   style={{ width: `${item.averageIntensity}%` }}
                 />
               </div>
@@ -305,6 +312,7 @@ function EmotionButton({ item, onSelectDream }: EmotionButtonProps) {
     <div className="rounded border border-white/[0.08] bg-night-950/[0.38] transition hover:border-ember/25 hover:bg-ember/[0.06]">
       <div className="flex items-stretch">
         <button
+          aria-label={`Open latest dream for emotion ${item.label}: ${item.latestDreamTitle}`}
           className="group min-w-0 flex-1 px-3 py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-ember/20"
           onClick={() => onSelectDream(item.latestDreamId)}
           type="button"
@@ -317,7 +325,12 @@ function EmotionButton({ item, onSelectDream }: EmotionButtonProps) {
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-night-950/[0.65]">
             <div
+              aria-label={`${item.label} average intensity ${item.averageIntensity}%`}
               className="h-full rounded-full bg-gradient-to-r from-ember via-moon to-tide"
+              role="progressbar"
+              aria-valuemax={100}
+              aria-valuemin={0}
+              aria-valuenow={item.averageIntensity}
               style={{ width: `${item.averageIntensity}%` }}
             />
           </div>
@@ -369,6 +382,7 @@ function AtlasButton({ item, onSelectDream }: AtlasButtonProps) {
     <div className="rounded border border-white/[0.08] bg-night-950/[0.38] transition hover:border-moon/25 hover:bg-moon/[0.055]">
       <div className="flex items-stretch">
         <button
+          aria-label={`Open latest dream for ${item.label}: ${item.latestDreamTitle}`}
           className="group min-w-0 flex-1 px-3 py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-moon/20"
           onClick={() => onSelectDream(item.latestDreamId)}
           type="button"
@@ -432,6 +446,7 @@ function RelatedDreamList({ dreams, onSelectDream }: RelatedDreamListProps) {
     <div className="space-y-1 border-t border-white/[0.08] px-2 py-2">
       {dreams.map((dream) => (
         <button
+          aria-label={`Open related dream: ${dream.title}`}
           className="flex w-full items-center justify-between gap-2 rounded px-2 py-1.5 text-left text-[11px] outline-none transition hover:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-moon/20"
           key={dream.id}
           onClick={() => onSelectDream(dream.id)}

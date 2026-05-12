@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import { analyzeDreamText } from '../api/analyzeDreamClient'
 import { mockDreams } from '../data/mockDreams'
 import { normalizeDreamEntry } from '../utils/dreamBackup'
@@ -52,6 +52,7 @@ type DreamState = {
   analysisStatus: 'idle' | 'loading' | 'success' | 'error'
   selectedDreamId: string
   dreams: DreamEntry[]
+  clearDreams: () => void
   createDream: () => void
   selectDream: (id: string) => void
   deleteDream: (id: string) => void
@@ -76,6 +77,13 @@ export const useDreamStore = create<DreamState>()(
       analysisStatus: 'idle',
       dreams: mockDreams,
       selectedDreamId: mockDreams[0].id,
+      clearDreams: () =>
+        set({
+          analysisError: null,
+          analysisStatus: 'idle',
+          dreams: [],
+          selectedDreamId: '',
+        }),
       createDream: () => {
         const dream = createDreamEntry()
 
@@ -203,6 +211,7 @@ export const useDreamStore = create<DreamState>()(
     }),
     {
       name: 'dream-atlas-journal',
+      storage: createJSONStorage(() => globalThis.localStorage),
       version: 3,
       migrate: (persisted) => {
         const state = persisted as {

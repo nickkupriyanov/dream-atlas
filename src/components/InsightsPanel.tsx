@@ -135,7 +135,15 @@ export function InsightsPanel({
                         </div>
                         <div className="h-1.5 overflow-hidden rounded-full bg-night-950/[0.55]">
                           <div
+                            aria-label={`${emotion.label} intensity ${emotion.intensity}%`}
                             className="h-full rounded-full bg-gradient-to-r from-ember via-moon to-tide"
+                            role="progressbar"
+                            aria-valuemax={100}
+                            aria-valuemin={0}
+                            aria-valuenow={Math.max(
+                              0,
+                              Math.min(100, emotion.intensity),
+                            )}
                             style={{
                               width: `${Math.max(0, Math.min(100, emotion.intensity))}%`,
                             }}
@@ -331,6 +339,7 @@ function SimilarDreamsSection({
         {dreams.length > 0 ? (
           dreams.map((dream) => (
             <button
+              aria-label={`Open similar dream: ${dream.title}`}
               className="w-full rounded border border-white/[0.08] bg-night-950/[0.38] px-3 py-2 text-left outline-none transition hover:border-moon/25 hover:bg-moon/[0.055] focus-visible:ring-2 focus-visible:ring-moon/20"
               key={dream.id}
               onClick={() => onSelectDream(dream.id)}
