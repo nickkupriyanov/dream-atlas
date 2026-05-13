@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import {
   CalendarDays,
+  ChevronDown,
   Download,
   FileText,
   FileUp,
@@ -58,6 +59,7 @@ export function DreamList({
   const [moodFilter, setMoodFilter] = useState('all')
   const [themeFilter, setThemeFilter] = useState('')
   const [analysisFilter, setAnalysisFilter] = useState('all')
+  const [showMobileTools, setShowMobileTools] = useState(false)
   const normalizedQuery = searchQuery.trim().toLowerCase()
   const normalizedDateFilter = dateFilter.trim().toLowerCase()
   const normalizedThemeFilter = themeFilter.trim().toLowerCase()
@@ -155,8 +157,8 @@ export function DreamList({
   }
 
   return (
-    <aside className="flex h-full min-h-0 w-full flex-col border-r border-white/[0.08] bg-night-900/[0.78] lg:w-[286px]">
-      <div className="border-b border-white/[0.08] px-4 py-4">
+    <aside className="flex h-full min-h-0 w-full flex-col bg-night-900/[0.78] lg:w-[286px] lg:border-r lg:border-white/[0.08]">
+      <div className="shrink-0 border-b border-white/[0.08] px-4 py-3 lg:py-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="grid h-9 w-9 place-items-center rounded-md border border-moon/20 bg-moon/[0.08] text-moon">
@@ -169,17 +171,36 @@ export function DreamList({
               <p className="text-xs text-mist-400">{t.aiDreamJournal}</p>
             </div>
           </div>
-          <button
-            aria-label={t.newDream}
-            className="grid h-8 w-8 place-items-center rounded-md border border-white/10 bg-white/5 text-mist-300 outline-none transition hover:border-moon/30 hover:bg-moon/10 hover:text-moon focus-visible:border-moon/50 focus-visible:ring-2 focus-visible:ring-moon/20 active:scale-95"
-            onClick={onCreateDream}
-            type="button"
-          >
-            <Plus size={16} />
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 gap-1 rounded-md border border-white/[0.08] bg-night-950/[0.4] p-1 lg:hidden">
+              {(['en', 'ru'] as Locale[]).map((option) => (
+                <button
+                  aria-pressed={locale === option}
+                  className={`h-7 w-10 rounded text-[11px] font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-moon/20 ${
+                    locale === option
+                      ? 'bg-white/[0.08] text-mist-100'
+                      : 'text-mist-400 hover:text-mist-200'
+                  }`}
+                  key={option}
+                  onClick={() => setLocale(option)}
+                  type="button"
+                >
+                  {option.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <button
+              aria-label={t.newDream}
+              className="grid h-8 w-8 place-items-center rounded-md border border-white/10 bg-white/5 text-mist-300 outline-none transition hover:border-moon/30 hover:bg-moon/10 hover:text-moon focus-visible:border-moon/50 focus-visible:ring-2 focus-visible:ring-moon/20 active:scale-95"
+              onClick={onCreateDream}
+              type="button"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
         </div>
 
-        <label className="mt-4 flex items-center gap-2 rounded-md border border-white/[0.08] bg-night-950/[0.55] px-3 py-2 text-sm text-mist-400 focus-within:border-moon/25 focus-within:bg-night-950/80">
+        <label className="mt-3 flex items-center gap-2 rounded-md border border-white/[0.08] bg-night-950/[0.55] px-3 py-2 text-sm text-mist-400 focus-within:border-moon/25 focus-within:bg-night-950/80 lg:mt-4">
           <Search size={15} />
           <input
             className="w-full bg-transparent text-mist-200 outline-none placeholder:text-mist-400"
@@ -190,7 +211,7 @@ export function DreamList({
           />
         </label>
 
-        <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
+        <div className="mt-3 hidden rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2 lg:block">
           <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
             {t.language}
           </div>
@@ -271,93 +292,109 @@ export function DreamList({
           </div>
         </div>
 
-        <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
-              <Download size={13} />
-              {t.backup}
-            </div>
-            <span className="text-[11px] text-mist-400">
-              {t.notesCount(dreams.length)}
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              aria-label={t.exportJsonBackup}
-              className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-tide/25 hover:text-tide focus-visible:ring-2 focus-visible:ring-tide/20 disabled:cursor-not-allowed disabled:opacity-45"
-              disabled={dreams.length === 0}
-              onClick={onExportJson}
-              type="button"
-            >
-              <Download size={14} />
-            </button>
-            <button
-              aria-label={t.exportMarkdownBackup}
-              className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-moon/25 hover:text-moon focus-visible:ring-2 focus-visible:ring-moon/20 disabled:cursor-not-allowed disabled:opacity-45"
-              disabled={dreams.length === 0}
-              onClick={onExportMarkdown}
-              type="button"
-            >
-              <FileText size={14} />
-            </button>
-            <button
-              aria-label={t.importJsonBackup}
-              className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-iris/25 hover:text-iris focus-visible:ring-2 focus-visible:ring-iris/20"
-              onClick={() => importInputRef.current?.click()}
-              type="button"
-            >
-              <FileUp size={14} />
-            </button>
-          </div>
-          <input
-            accept="application/json,.json"
-            className="hidden"
-            onChange={handleImportChange}
-            ref={importInputRef}
-            type="file"
+        <button
+          aria-expanded={showMobileTools}
+          className="mt-3 flex h-9 w-full items-center justify-between rounded-md border border-white/[0.08] bg-night-950/[0.32] px-3 text-xs font-medium text-mist-300 outline-none transition hover:border-white/[0.15] hover:text-mist-100 focus-visible:ring-2 focus-visible:ring-moon/20 lg:hidden"
+          onClick={() => setShowMobileTools((isShown) => !isShown)}
+          type="button"
+        >
+          <span className="flex items-center gap-2">
+            <Download size={13} />
+            {t.backup} / {t.privacy}
+          </span>
+          <ChevronDown
+            className={`transition ${showMobileTools ? 'rotate-180' : ''}`}
+            size={15}
           />
-          {backupStatus.tone !== 'idle' ? (
-            <p
-              className={`mt-2 text-[11px] leading-4 ${
-                backupStatus.tone === 'error' ? 'text-ember' : 'text-tide'
-              }`}
-            >
-              {backupStatus.message}
-            </p>
-          ) : null}
-        </div>
+        </button>
 
-        <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
-              <ShieldCheck size={13} />
-              {t.privacy}
+        <div className={`${showMobileTools ? 'block' : 'hidden'} lg:block`}>
+          <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
+                <Download size={13} />
+                {t.backup}
+              </div>
+              <span className="text-[11px] text-mist-400">
+                {t.notesCount(dreams.length)}
+              </span>
             </div>
-            <LockKeyhole size={13} className="text-mist-500" />
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                aria-label={t.exportJsonBackup}
+                className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-tide/25 hover:text-tide focus-visible:ring-2 focus-visible:ring-tide/20 disabled:cursor-not-allowed disabled:opacity-45"
+                disabled={dreams.length === 0}
+                onClick={onExportJson}
+                type="button"
+              >
+                <Download size={14} />
+              </button>
+              <button
+                aria-label={t.exportMarkdownBackup}
+                className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-moon/25 hover:text-moon focus-visible:ring-2 focus-visible:ring-moon/20 disabled:cursor-not-allowed disabled:opacity-45"
+                disabled={dreams.length === 0}
+                onClick={onExportMarkdown}
+                type="button"
+              >
+                <FileText size={14} />
+              </button>
+              <button
+                aria-label={t.importJsonBackup}
+                className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-iris/25 hover:text-iris focus-visible:ring-2 focus-visible:ring-iris/20"
+                onClick={() => importInputRef.current?.click()}
+                type="button"
+              >
+                <FileUp size={14} />
+              </button>
+            </div>
+            <input
+              accept="application/json,.json"
+              className="hidden"
+              onChange={handleImportChange}
+              ref={importInputRef}
+              type="file"
+            />
+            {backupStatus.tone !== 'idle' ? (
+              <p
+                className={`mt-2 text-[11px] leading-4 ${
+                  backupStatus.tone === 'error' ? 'text-ember' : 'text-tide'
+                }`}
+              >
+                {backupStatus.message}
+              </p>
+            ) : null}
           </div>
-          <div className="space-y-2 text-[11px] leading-4 text-mist-400">
-            <p className="flex gap-2">
-              <HardDrive size={13} className="mt-0.5 shrink-0 text-tide" />
-              {t.privacyLocal}
-            </p>
-            <p>
-              {t.privacyAi}
-            </p>
+
+          <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
+                <ShieldCheck size={13} />
+                {t.privacy}
+              </div>
+              <LockKeyhole size={13} className="text-mist-500" />
+            </div>
+            <div className="space-y-2 text-[11px] leading-4 text-mist-400">
+              <p className="flex gap-2">
+                <HardDrive size={13} className="mt-0.5 shrink-0 text-tide" />
+                {t.privacyLocal}
+              </p>
+              <p>{t.privacyAi}</p>
+            </div>
+            <button
+              className="mt-3 inline-flex h-8 w-full items-center justify-center gap-2 rounded border border-ember/20 bg-ember/[0.06] px-2 text-xs font-medium text-ember outline-none transition hover:border-ember/35 hover:bg-ember/[0.1] focus-visible:ring-2 focus-visible:ring-ember/20 disabled:cursor-not-allowed disabled:opacity-45"
+              disabled={dreams.length === 0}
+              onClick={onClearLocalDreams}
+              type="button"
+            >
+              <Trash2 size={13} />
+              {t.deleteLocalJournal}
+            </button>
+            {privacyStatus.tone !== 'idle' ? (
+              <p className="mt-2 text-[11px] leading-4 text-tide">
+                {privacyStatus.message}
+              </p>
+            ) : null}
           </div>
-          <button
-            className="mt-3 inline-flex h-8 w-full items-center justify-center gap-2 rounded border border-ember/20 bg-ember/[0.06] px-2 text-xs font-medium text-ember outline-none transition hover:border-ember/35 hover:bg-ember/[0.1] focus-visible:ring-2 focus-visible:ring-ember/20 disabled:cursor-not-allowed disabled:opacity-45"
-            disabled={dreams.length === 0}
-            onClick={onClearLocalDreams}
-            type="button"
-          >
-            <Trash2 size={13} />
-            {t.deleteLocalJournal}
-          </button>
-          {privacyStatus.tone !== 'idle' ? (
-            <p className="mt-2 text-[11px] leading-4 text-tide">
-              {privacyStatus.message}
-            </p>
-          ) : null}
         </div>
       </div>
 
