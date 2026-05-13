@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   analyzeDreamRequestBody,
   createLocalAnalysis,
+  extractJsonObject,
   isDreamAnalysis,
 } from './dreamAnalysis'
 
@@ -34,5 +35,14 @@ describe('dream analysis validation', () => {
         tone: 'invalid',
       }),
     ).toBe(false)
+  })
+
+  it('extracts a JSON object from a wrapped agent response', () => {
+    const wrapped =
+      'Вот результат анализа:\n{"summary":"x","tone":"y","emotions":[],"symbols":[],"places":[],"characters":[],"recurringThemes":[]}'
+
+    expect(extractJsonObject(wrapped)).toBe(
+      '{"summary":"x","tone":"y","emotions":[],"symbols":[],"places":[],"characters":[],"recurringThemes":[]}',
+    )
   })
 })

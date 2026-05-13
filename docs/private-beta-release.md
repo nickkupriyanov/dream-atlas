@@ -14,13 +14,13 @@ treated as a trust test, not only a feature test.
 Required for hosted AI analysis:
 
 ```bash
-OPENAI_API_KEY=...
-OPENAI_MODEL=gpt-5-mini
+TIMEWEB_AGENT_TOKEN=...
+TIMEWEB_OPENAI_BASE_URL=https://agent.timeweb.cloud/api/v1/cloud-ai/agents/.../v1
 ```
 
-If `OPENAI_API_KEY` is missing, `/api/analyze-dream` returns the local fallback
-analysis. That is useful for development, but should be called out clearly when
-sharing a beta build.
+If `TIMEWEB_OPENAI_BASE_URL` or `TIMEWEB_AGENT_TOKEN` is missing,
+`/api/analyze-dream` returns the local fallback analysis. That is useful for
+development, but should be called out clearly when sharing a beta build.
 
 ## Verification
 
@@ -35,7 +35,7 @@ npm run build
 Manual QA:
 
 - Create a new dream and confirm it autosaves after reload.
-- Run analysis with and without `OPENAI_API_KEY`.
+- Run analysis with and without Timeweb agent credentials.
 - Export JSON before testing destructive actions.
 - Import the exported JSON and confirm the selected dream opens.
 - Use the Privacy panel to delete local journal data after confirming export.
@@ -53,8 +53,9 @@ Vercel setup:
 1. Import the repo as a Vite project.
 2. Set build command to `npm run build`.
 3. Set output directory to `dist`.
-4. Add `OPENAI_API_KEY` and optional `OPENAI_MODEL` environment variables.
-5. Deploy and test `POST /api/analyze-dream` from the hosted app.
+4. Add `TIMEWEB_OPENAI_BASE_URL` and `TIMEWEB_AGENT_TOKEN` environment variables.
+5. Redeploy after saving env variables.
+6. Test `POST /api/analyze-dream` from the hosted app.
 
 ## Privacy Notes
 

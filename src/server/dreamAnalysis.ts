@@ -1,55 +1,12 @@
 import type { DreamAnalysis } from '../types/dream'
 
-export const dreamAnalysisSchema = {
-  type: 'object',
-  additionalProperties: false,
-  required: [
-    'summary',
-    'tone',
-    'emotions',
-    'symbols',
-    'places',
-    'characters',
-    'recurringThemes',
-  ],
-  properties: {
-    summary: { type: 'string' },
-    tone: { type: 'string' },
-    emotions: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        required: ['label', 'intensity'],
-        properties: {
-          label: { type: 'string' },
-          intensity: { type: 'number', minimum: 0, maximum: 100 },
-        },
-      },
-    },
-    symbols: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        required: ['label', 'meaning'],
-        properties: {
-          label: { type: 'string' },
-          meaning: { type: 'string' },
-        },
-      },
-    },
-    places: { type: 'array', items: { type: 'string' } },
-    characters: { type: 'array', items: { type: 'string' } },
-    recurringThemes: { type: 'array', items: { type: 'string' } },
-  },
-}
+export const timewebAgentPrompt = `Ты анализируешь личные записи снов для приложения Dream Atlas.
 
-export const analyzeDreamPrompt = `You analyze personal dream journal entries.
+Твоя задача: бережно и ясно структурировать сон, не выдавая интерпретации за факт.
 
-Return strictly valid JSON only. Do not include markdown, code fences, comments, prose outside JSON, or explanations.
+Верни строго JSON без markdown, без пояснений до или после JSON, без тройных кавычек и без комментариев.
 
-The JSON object must match this TypeScript shape exactly:
+JSON должен точно соответствовать форме:
 {
   "summary": string,
   "tone": string,
@@ -60,20 +17,23 @@ The JSON object must match this TypeScript shape exactly:
   "recurringThemes": string[]
 }
 
-Rules:
-- intensity is a number from 0 to 100.
-- Use concise, human labels.
-- Return all human-facing strings in the same language as the dream text.
-- If the dream text is in Russian, write summary, tone, labels, meanings, places, characters, and themes in Russian.
-- Keep summary to one or two sentences.
-- Keep meanings grounded in the dream text.`
-
-type OpenAiResponse = {
-  output_text?: unknown
-  output?: Array<{
-    content?: Array<{ type?: string; text?: string }>
-  }>
-}
+Правила:
+- Все строки пиши на том же языке, что и текст сна.
+- Если сон написан по-русски, весь ответ должен быть по-русски.
+- Если сон написан по-английски, весь ответ должен быть по-английски.
+- summary: 1-2 предложения, кратко и по существу.
+- tone: короткая формулировка эмоционального тона сна.
+- emotions: 2-5 эмоций с intensity от 0 до 100.
+- symbols: 1-6 символов или образов, для каждого дай краткое grounded-meaning объяснение только по содержанию сна.
+- places: перечисли значимые места из сна.
+- characters: перечисли людей, существ или присутствия из сна.
+- recurringThemes: перечисли повторяющиеся мотивы или темы, которые действительно следуют из текста.
+- Не ставь диагнозы.
+- Не делай медицинских, психиатрических или терапевтических заключений.
+- Не предсказывай будущее.
+- Не выдумывай детали, которых нет в тексте сна.
+- Если данных мало, возвращай короткие массивы, но сохраняй все поля.
+- Если что-то не упомянуто, возвращай пустой массив для соответствующего поля.`
 
 export type AnalyzeDreamBody = {
   text?: unknown
@@ -187,43 +147,88 @@ export function createLocalAnalysis(text: string): DreamAnalysis {
   }
 }
 
-function extractResponseText(response: OpenAiResponse) {
-  if (typeof response.output_text === 'string') {
-    return response.output_text
+export function extractJsonObject(text: string) {
+  let depth = 0
+  let startIndex = -1
+  let inString = false
+  let escaped = false
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index]
+
+    if (escaped) {
+      escaped = false
+      continue
+    }
+
+    if (character === '\\') {
+      escaped = true
+      continue
+    }
+
+    if (character === '"') {
+      inString = !inString
+      continue
+    }
+
+    if (inString) {
+      continue
+    }
+
+    if (character === '{') {
+      if (depth === 0) {
+        startIndex = index
+      }
+      depth += 1
+      continue
+    }
+
+    if (character === '}') {
+      depth -= 1
+
+      if (depth === 0 && startIndex >= 0) {
+        return text.slice(startIndex, index + 1)
+      }
+    }
   }
 
-  return (
-    response.output
-      ?.flatMap((item) => item.content ?? [])
-      .find((content) => content.type === 'output_text')?.text ?? ''
-  )
+  return text.trim()
+}
+
+function buildTimewebAgentMessage(text: string) {
+  return `Текст сна:\n${text}\n\nВерни только JSON по заданной структуре.`
 }
 
 export async function requestDreamAnalysis(text: string) {
-  const apiKey = process.env.OPENAI_API_KEY
+  const apiKey = process.env.TIMEWEB_AGENT_TOKEN
+  const baseUrl = process.env.TIMEWEB_OPENAI_BASE_URL
 
-  if (!apiKey) {
+  if (!baseUrl || !apiKey) {
     return createLocalAnalysis(text)
   }
 
-  const response = await fetch('https://api.openai.com/v1/responses', {
+  const response = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      input: `Dream text:\n${text}`,
-      instructions: analyzeDreamPrompt,
-      model: process.env.OPENAI_MODEL ?? 'gpt-5-mini',
-      text: {
-        format: {
-          name: 'dream_analysis',
-          schema: dreamAnalysisSchema,
-          strict: true,
-          type: 'json_schema',
+      model: 'timeweb-agent',
+      max_tokens: 1400,
+      temperature: 0.2,
+      top_p: 0.9,
+      stream: false,
+      messages: [
+        {
+          role: 'system',
+          content: timewebAgentPrompt,
         },
-      },
+        {
+          role: 'user',
+          content: buildTimewebAgentMessage(text),
+        },
+      ],
     }),
   })
 
@@ -232,12 +237,23 @@ export async function requestDreamAnalysis(text: string) {
     throw new Error(detail || 'LLM request failed.')
   }
 
-  const data = (await response.json()) as OpenAiResponse
-  const outputText = extractResponseText(data)
-  const parsed = JSON.parse(outputText) as unknown
+  const data = (await response.json()) as {
+    choices?: Array<{
+      message?: {
+        content?: unknown
+      }
+    }>
+  }
+  const content = data.choices?.[0]?.message?.content
+
+  if (typeof content !== 'string' || !content.trim()) {
+    throw new Error('Timeweb Agent returned an empty response.')
+  }
+
+  const parsed = JSON.parse(extractJsonObject(content)) as unknown
 
   if (!isDreamAnalysis(parsed)) {
-    throw new Error('LLM returned JSON that does not match DreamAnalysis.')
+    throw new Error('Timeweb Agent returned JSON that does not match DreamAnalysis.')
   }
 
   return parsed

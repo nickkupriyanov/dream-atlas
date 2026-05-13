@@ -18,7 +18,8 @@ This is a React + TypeScript + Vite app with:
 - An insights panel for one selected dream.
 - A production-compatible API route for `/api/analyze-dream` in `api/analyze-dream.ts`.
 - Vite dev middleware that reuses the same server analysis handler.
-- A local fallback analyzer when `OPENAI_API_KEY` is missing.
+- Timeweb Agent integration through the shared OpenAI-compatible server analysis handler.
+- A local fallback analyzer when `TIMEWEB_OPENAI_BASE_URL` or `TIMEWEB_AGENT_TOKEN` is missing.
 - Functional search across notes and analysis fields.
 - Basic title, date, mood and delete controls.
 - First Atlas panel aggregating symbols, emotions, places, characters and recurring themes.

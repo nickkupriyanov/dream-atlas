@@ -15,7 +15,8 @@ Dream Atlas должен ощущаться не как обычный note-taki
 - Моковые записи, которые задают тон продукта.
 - Production-compatible `/api/analyze-dream` route в `api/analyze-dream.ts`.
 - Vite dev middleware использует тот же server handler во время разработки.
-- Локальный fallback-анализ, если `OPENAI_API_KEY` не задан.
+- Интеграция с Timeweb Agent через OpenAI-compatible API.
+- Локальный fallback-анализ, если `TIMEWEB_OPENAI_BASE_URL` или `TIMEWEB_AGENT_TOKEN` не заданы.
 - Поиск по тексту записи и AI-слоям анализа.
 - Редактирование title, date, mood и удаление записей.
 - Первый Atlas View с агрегацией symbols, emotions, places, characters и recurring themes.
@@ -43,8 +44,8 @@ Dream Atlas должен ощущаться не как обычный note-taki
 Цель: превратить красивый прототип в реально работающий дневник.
 
 - [x] Реализовать dev endpoint `/api/analyze-dream`.
-- [x] Подключить AI-анализ со строгой JSON-схемой ответа.
-- [x] Добавить локальный fallback без API key.
+- [x] Подключить AI-анализ со строгим структурированным JSON-ответом.
+- [x] Добавить локальный fallback без agent credentials.
 - [x] Сохранить анализ вместе с записью.
 - [x] Добавить базовые действия с записями: удалить, переименовать, изменить дату, изменить mood.
 - [x] Сделать поиск по title, text, symbols, places, characters и themes.
@@ -138,13 +139,19 @@ AI config:
 cp .env.example .env
 ```
 
-Then set `OPENAI_API_KEY` in `.env`. If the key is omitted, `/api/analyze-dream` returns a deterministic local fallback analysis so the app remains usable during development.
-
-Default model:
+Then set the Timeweb agent credentials in `.env`:
 
 ```bash
-OPENAI_MODEL=gpt-5-mini
+TIMEWEB_AGENT_TOKEN=...
+TIMEWEB_OPENAI_BASE_URL=https://agent.timeweb.cloud/api/v1/cloud-ai/agents/.../v1
 ```
+
+If `TIMEWEB_OPENAI_BASE_URL` or `TIMEWEB_AGENT_TOKEN` is omitted, `/api/analyze-dream` returns a deterministic local fallback analysis so the app remains usable during development.
+
+Timeweb setup:
+
+- Use the prompt and panel values from [docs/timeweb-agent-setup.md](/Users/nickkupriyanov/Documents/LLM%20Projects/Dream%20Atlas/dream-atlas/docs/timeweb-agent-setup.md).
+- The server route calls the Timeweb OpenAI-compatible API and validates the returned JSON before saving it.
 
 Build:
 
@@ -169,7 +176,7 @@ Privacy and storage:
 - Dream notes are persisted locally in this browser through Zustand/localStorage.
 - JSON and Markdown export are available from the Backup panel.
 - The Privacy panel can delete the local journal from the current browser after confirmation.
-- AI analysis sends only the selected dream text to `/api/analyze-dream`; without `OPENAI_API_KEY`, the route uses the deterministic local fallback.
+- AI analysis sends only the selected dream text to `/api/analyze-dream`; without `TIMEWEB_OPENAI_BASE_URL` or `TIMEWEB_AGENT_TOKEN`, the route uses the deterministic local fallback.
 
 Private beta release:
 
