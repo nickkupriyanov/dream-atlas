@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 import {
   analyzeDreamRequestBody,
   type AnalyzeDreamBody,
-} from './src/server/dreamAnalysis'
+} from './src/server/dreamAnalysis.js'
 
 function readRequestBody(request: IncomingMessage) {
   return new Promise<string>((resolve, reject) => {

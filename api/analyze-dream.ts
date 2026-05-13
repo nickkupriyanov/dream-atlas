@@ -1,7 +1,7 @@
 import {
   analyzeDreamRequestBody,
   type AnalyzeDreamBody,
-} from '../src/server/dreamAnalysis'
+} from '../src/server/dreamAnalysis.js'
 
 export const config = {
   runtime: 'nodejs',
