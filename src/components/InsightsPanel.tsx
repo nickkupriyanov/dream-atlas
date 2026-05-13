@@ -22,6 +22,7 @@ import {
   findSimilarDreams,
   type SimilarDream,
 } from '../utils/dreamReflection'
+import { useI18n } from '../i18n'
 import { getDreamSignature } from '../utils/dreamSignature'
 
 type InsightsPanelProps = {
@@ -42,9 +43,10 @@ export function InsightsPanel({
   onSelectDream,
   onSymbolFeedbackChange,
 }: InsightsPanelProps) {
+  const { locale, t } = useI18n()
   const analysis = dream?.analysis
   const signature = getDreamSignature(analysis)
-  const weeklyDigest = createWeeklyDigest(dreams)
+  const weeklyDigest = createWeeklyDigest(dreams, locale)
   const similarDreams = findSimilarDreams(dream, dreams)
 
   return (
@@ -56,9 +58,9 @@ export function InsightsPanel({
           </div>
           <div>
             <h2 className="text-base font-semibold text-mist-100">
-              AI Insights
+              {t.aiInsights}
             </h2>
-            <p className="text-xs text-mist-400">Pattern reading</p>
+            <p className="text-xs text-mist-400">{t.patternReading}</p>
           </div>
         </div>
       </div>
@@ -70,10 +72,10 @@ export function InsightsPanel({
               <CircleDashed size={18} />
             </div>
             <h3 className="mt-4 text-sm font-medium text-mist-100">
-              Awaiting a dream
+              {t.awaitingDream}
             </h3>
             <p className="mt-2 max-w-[220px] text-xs leading-5 text-mist-400">
-              Insights will appear here once a journal entry exists.
+              {t.awaitingDreamDescription}
             </p>
           </div>
         ) : null}
@@ -100,7 +102,7 @@ export function InsightsPanel({
                 />
                 <div className="relative mb-3 flex items-center gap-2 text-sm font-medium text-mist-100">
                   <MessageCircle size={16} className="text-moon" />
-                  Summary
+                  {t.summary}
                 </div>
                 <p className="relative text-sm leading-6 text-mist-300">
                   {analysis.summary}
@@ -108,7 +110,7 @@ export function InsightsPanel({
                 <div className="relative mt-4 rounded border border-white/[0.08] bg-night-950/[0.34] px-3 py-2">
                   <div className="mb-1 flex items-center gap-2 text-xs font-medium text-moon">
                     <Sparkles size={13} />
-                    Tone
+                    {t.tone}
                   </div>
                   <p className="text-xs leading-5 text-mist-300">
                     {analysis.tone}
@@ -119,7 +121,7 @@ export function InsightsPanel({
               <section className="rounded-md border border-white/[0.08] bg-white/[0.035] p-4 transition hover:border-white/[0.13]">
                 <div className="mb-3 flex items-center gap-2 text-sm font-medium text-mist-100">
                   <SmilePlus size={16} className="text-ember" />
-                  Emotions
+                  {t.emotions}
                 </div>
                 <div className="space-y-3">
                   {analysis.emotions.length > 0 ? (
@@ -135,7 +137,7 @@ export function InsightsPanel({
                         </div>
                         <div className="h-1.5 overflow-hidden rounded-full bg-night-950/[0.55]">
                           <div
-                            aria-label={`${emotion.label} intensity ${emotion.intensity}%`}
+                            aria-label={`${emotion.label} ${t.intensity} ${emotion.intensity}%`}
                             className="h-full rounded-full bg-gradient-to-r from-ember via-moon to-tide"
                             role="progressbar"
                             aria-valuemax={100}
@@ -153,7 +155,7 @@ export function InsightsPanel({
                     ))
                   ) : (
                     <span className="text-xs text-mist-400">
-                      Not detected yet
+                      {t.notDetectedYet}
                     </span>
                   )}
                 </div>
@@ -162,7 +164,7 @@ export function InsightsPanel({
               <section className="rounded-md border border-white/[0.08] bg-white/[0.035] p-4 transition hover:border-white/[0.13]">
                 <div className="mb-3 flex items-center gap-2 text-sm font-medium text-mist-100">
                   <Shapes size={16} className="text-iris" />
-                  Symbols
+                  {t.symbols}
                 </div>
                 <div className="space-y-2.5">
                   {analysis.symbols.length > 0 ? (
@@ -192,7 +194,7 @@ export function InsightsPanel({
                     ))
                   ) : (
                     <span className="text-xs text-mist-400">
-                      Not detected yet
+                      {t.notDetectedYet}
                     </span>
                   )}
                 </div>
@@ -201,17 +203,17 @@ export function InsightsPanel({
               <ChipSection
                 icon={<MapPinned size={16} className="text-tide" />}
                 items={analysis.places}
-                title="Places"
+                title={t.places}
               />
               <ChipSection
                 icon={<UserRound size={16} className="text-moon" />}
                 items={analysis.characters}
-                title="Characters"
+                title={t.characters}
               />
               <ChipSection
                 icon={<Sparkles size={16} className="text-iris" />}
                 items={analysis.recurringThemes}
-                title="Recurring Themes"
+                title={t.recurringThemes}
               />
               <SimilarDreamsSection
                 dreams={similarDreams}
@@ -229,28 +231,6 @@ export function InsightsPanel({
   )
 }
 
-const symbolFeedbackOptions: {
-  icon: ReactNode
-  label: string
-  value: SymbolFeedbackStatus
-}[] = [
-  {
-    icon: <CheckCircle2 size={12} />,
-    label: 'Personal',
-    value: 'personal',
-  },
-  {
-    icon: <HelpCircle size={12} />,
-    label: 'Questionable',
-    value: 'questionable',
-  },
-  {
-    icon: <XCircle size={12} />,
-    label: 'Wrong',
-    value: 'wrong',
-  },
-]
-
 type SymbolFeedbackControlsProps = {
   label: string
   onChange: (label: string, status: SymbolFeedbackStatus | null) => void
@@ -262,11 +242,34 @@ function SymbolFeedbackControls({
   onChange,
   value,
 }: SymbolFeedbackControlsProps) {
+  const { t } = useI18n()
+  const symbolFeedbackOptions: {
+    icon: ReactNode
+    label: string
+    value: SymbolFeedbackStatus
+  }[] = [
+    {
+      icon: <CheckCircle2 size={12} />,
+      label: t.personal,
+      value: 'personal',
+    },
+    {
+      icon: <HelpCircle size={12} />,
+      label: t.questionable,
+      value: 'questionable',
+    },
+    {
+      icon: <XCircle size={12} />,
+      label: t.wrong,
+      value: 'wrong',
+    },
+  ]
+
   return (
     <div className="flex shrink-0 gap-1">
       {symbolFeedbackOptions.map((option) => (
         <button
-          aria-label={`${option.label} symbol: ${label}`}
+          aria-label={`${option.label} ${t.symbolSingular}: ${label}`}
           className={`grid h-6 w-6 place-items-center rounded border outline-none transition focus-visible:ring-2 focus-visible:ring-moon/20 ${
             value === option.value
               ? 'border-moon/30 bg-moon/[0.12] text-moon'
@@ -291,29 +294,33 @@ type WeeklyDigestCardProps = {
 }
 
 function WeeklyDigestCard({ digest }: WeeklyDigestCardProps) {
+  const { t } = useI18n()
+
   return (
     <section className="rounded-md border border-tide/[0.14] bg-tide/[0.045] p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm font-medium text-mist-100">
           <BookOpenCheck size={16} className="text-tide" />
-          Weekly Digest
+          {t.weeklyDigest}
         </div>
         <span className="text-xs text-mist-400">{digest.dreamCount}</span>
       </div>
       <p className="text-xs leading-5 text-mist-300">{digest.note}</p>
       <div className="mt-3 grid gap-2 text-[11px] text-mist-400">
-        <span>Emotion: {digest.dominantEmotion}</span>
         <span>
-          Themes:{' '}
-          {digest.topThemes.length > 0
-            ? digest.topThemes.join(', ')
-            : 'Not detected yet'}
+          {t.emotion}: {digest.dominantEmotion}
         </span>
         <span>
-          Symbols:{' '}
+          {t.themes}:{' '}
+          {digest.topThemes.length > 0
+            ? digest.topThemes.join(', ')
+            : t.notDetectedYet}
+        </span>
+        <span>
+          {t.symbols}:{' '}
           {digest.topSymbols.length > 0
             ? digest.topSymbols.join(', ')
-            : 'Not detected yet'}
+            : t.notDetectedYet}
         </span>
       </div>
     </section>
@@ -329,17 +336,19 @@ function SimilarDreamsSection({
   dreams,
   onSelectDream,
 }: SimilarDreamsSectionProps) {
+  const { t } = useI18n()
+
   return (
     <section className="rounded-md border border-white/[0.08] bg-white/[0.035] p-4 transition hover:border-white/[0.13]">
       <div className="mb-3 flex items-center gap-2 text-sm font-medium text-mist-100">
         <GitCompare size={16} className="text-moon" />
-        Similar Dreams
+        {t.similarDreams}
       </div>
       <div className="space-y-2">
         {dreams.length > 0 ? (
           dreams.map((dream) => (
             <button
-              aria-label={`Open similar dream: ${dream.title}`}
+              aria-label={`${t.openSimilarDream}: ${dream.title}`}
               className="w-full rounded border border-white/[0.08] bg-night-950/[0.38] px-3 py-2 text-left outline-none transition hover:border-moon/25 hover:bg-moon/[0.055] focus-visible:ring-2 focus-visible:ring-moon/20"
               key={dream.id}
               onClick={() => onSelectDream(dream.id)}
@@ -350,7 +359,7 @@ function SimilarDreamsSection({
                   {dream.title}
                 </span>
                 <span className="shrink-0 text-[10px] text-mist-400">
-                  {dream.score} shared
+                  {dream.score} {t.shared}
                 </span>
               </div>
               <p className="mt-1 text-[11px] text-mist-400">
@@ -362,7 +371,7 @@ function SimilarDreamsSection({
             </button>
           ))
         ) : (
-          <span className="text-xs text-mist-400">No close echoes yet</span>
+          <span className="text-xs text-mist-400">{t.noCloseEchoes}</span>
         )}
       </div>
     </section>
@@ -378,17 +387,19 @@ function ReflectionNotesSection({
   notes,
   onChange,
 }: ReflectionNotesSectionProps) {
+  const { t } = useI18n()
+
   return (
     <section className="rounded-md border border-white/[0.08] bg-white/[0.035] p-4 transition focus-within:border-iris/25 hover:border-white/[0.13]">
       <div className="mb-3 flex items-center gap-2 text-sm font-medium text-mist-100">
         <PenLine size={16} className="text-iris" />
-        Reflection Notes
+        {t.reflectionNotes}
       </div>
       <textarea
-        aria-label="Reflection notes"
+        aria-label={t.reflectionNotesAria}
         className="h-24 w-full resize-none rounded border border-white/[0.08] bg-night-950/[0.42] px-3 py-2 text-xs leading-5 text-mist-200 outline-none placeholder:text-mist-400 focus:border-iris/25 focus:ring-2 focus:ring-iris/10"
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Add what feels personal, useful, or off-base."
+        placeholder={t.reflectionNotesPlaceholder}
         value={notes}
       />
     </section>
@@ -402,6 +413,8 @@ type ChipSectionProps = {
 }
 
 function ChipSection({ icon, items, title }: ChipSectionProps) {
+  const { t } = useI18n()
+
   return (
     <section className="rounded-md border border-white/[0.08] bg-white/[0.035] p-4 transition hover:border-white/[0.13]">
       <div className="mb-3 flex items-center gap-2 text-sm font-medium text-mist-100">
@@ -419,7 +432,7 @@ function ChipSection({ icon, items, title }: ChipSectionProps) {
             </span>
           ))
         ) : (
-          <span className="text-xs text-mist-400">Not detected yet</span>
+          <span className="text-xs text-mist-400">{t.notDetectedYet}</span>
         )}
       </div>
     </section>

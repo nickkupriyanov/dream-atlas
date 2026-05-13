@@ -63,6 +63,8 @@ The JSON object must match this TypeScript shape exactly:
 Rules:
 - intensity is a number from 0 to 100.
 - Use concise, human labels.
+- Return all human-facing strings in the same language as the dream text.
+- If the dream text is in Russian, write summary, tone, labels, meanings, places, characters, and themes in Russian.
 - Keep summary to one or two sentences.
 - Keep meanings grounded in the dream text.`
 
@@ -112,11 +114,51 @@ export function isDreamAnalysis(value: unknown): value is DreamAnalysis {
 
 export function createLocalAnalysis(text: string): DreamAnalysis {
   const words = text.toLowerCase()
+  const isRussian = /[а-яё]/i.test(text)
   const calm = words.includes('light') || words.includes('warm') ? 66 : 42
   const unease =
     words.includes('lost') || words.includes('dark') || words.includes('water')
       ? 62
       : 38
+
+  if (isRussian) {
+    const russianCalm = words.includes('свет') || words.includes('тепл') ? 66 : 42
+    const russianUnease =
+      words.includes('потер') ||
+      words.includes('темн') ||
+      words.includes('вода') ||
+      words.includes('воде')
+        ? 62
+        : 38
+
+    return {
+      characters: words.includes('кто-то') || words.includes('кто то')
+        ? ['безымянное присутствие']
+        : [],
+      emotions: [
+        { label: 'любопытство', intensity: 68 },
+        { label: 'тревога', intensity: russianUnease },
+        { label: 'спокойствие', intensity: russianCalm },
+      ],
+      places: ['внутренний порог'],
+      recurringThemes: ['переход', 'ориентация', 'личная память'],
+      summary:
+        'Сон проходит через заряженную внутреннюю сцену, соединяя память, неопределенность и поиск ориентира.',
+      symbols: [
+        {
+          label: 'проход',
+          meaning:
+            'Точка перехода, где сновидец движется от одного состояния понимания к другому.',
+        },
+        {
+          label: 'свет',
+          meaning:
+            'Небольшой источник ясности или эмоционального тепла внутри неопределенной обстановки.',
+        },
+      ],
+      tone: 'тихий, рефлексивный и немного незавершенный',
+    }
+  }
 
   return {
     characters: words.includes('someone') ? ['unnamed presence'] : [],

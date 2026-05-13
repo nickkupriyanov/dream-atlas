@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react'
 import type { DreamEntry } from '../types/dream'
+import { useI18n, type Locale } from '../i18n'
 import { getDreamSignature, getDreamTitle } from '../utils/dreamSignature'
 
 type DreamListProps = {
@@ -50,6 +51,7 @@ export function DreamList({
   onImportBackup,
   onSelectDream,
 }: DreamListProps) {
+  const { locale, setLocale, t } = useI18n()
   const importInputRef = useRef<HTMLInputElement>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [dateFilter, setDateFilter] = useState('')
@@ -164,11 +166,11 @@ export function DreamList({
               <h1 className="text-base font-semibold tracking-normal text-mist-100">
                 Dream Atlas
               </h1>
-              <p className="text-xs text-mist-400">AI dream journal</p>
+              <p className="text-xs text-mist-400">{t.aiDreamJournal}</p>
             </div>
           </div>
           <button
-            aria-label="New dream"
+            aria-label={t.newDream}
             className="grid h-8 w-8 place-items-center rounded-md border border-white/10 bg-white/5 text-mist-300 outline-none transition hover:border-moon/30 hover:bg-moon/10 hover:text-moon focus-visible:border-moon/50 focus-visible:ring-2 focus-visible:ring-moon/20 active:scale-95"
             onClick={onCreateDream}
             type="button"
@@ -182,21 +184,44 @@ export function DreamList({
           <input
             className="w-full bg-transparent text-mist-200 outline-none placeholder:text-mist-400"
             onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search dreams"
+            placeholder={t.searchDreams}
             type="search"
             value={searchQuery}
           />
         </label>
 
         <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
+          <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
+            {t.language}
+          </div>
+          <div className="grid grid-cols-2 gap-1">
+            {(['en', 'ru'] as Locale[]).map((option) => (
+              <button
+                aria-pressed={locale === option}
+                className={`h-7 rounded text-[11px] font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-moon/20 ${
+                  locale === option
+                    ? 'bg-white/[0.08] text-mist-100'
+                    : 'text-mist-400 hover:text-mist-200'
+                }`}
+                key={option}
+                onClick={() => setLocale(option)}
+                type="button"
+              >
+                {option.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-3 rounded-md border border-white/[0.08] bg-night-950/[0.32] p-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
               <SlidersHorizontal size={13} />
-              Filters
+              {t.filters}
             </div>
             {hasActiveFilters ? (
               <button
-                aria-label="Clear filters"
+                aria-label={t.clearFilters}
                 className="grid h-6 w-6 place-items-center rounded border border-white/[0.08] text-mist-400 outline-none transition hover:border-moon/25 hover:text-moon focus-visible:ring-2 focus-visible:ring-moon/20"
                 onClick={clearFilters}
                 type="button"
@@ -207,19 +232,19 @@ export function DreamList({
           </div>
           <div className="grid grid-cols-2 gap-2">
             <input
-              aria-label="Filter by date"
+              aria-label={t.date}
               className="h-8 rounded border border-white/[0.08] bg-white/[0.035] px-2 text-xs text-mist-200 outline-none placeholder:text-mist-400 focus:border-moon/25"
               onChange={(event) => setDateFilter(event.target.value)}
-              placeholder="Date"
+              placeholder={t.date}
               value={dateFilter}
             />
             <select
-              aria-label="Filter by mood"
+              aria-label={t.mood}
               className="h-8 rounded border border-white/[0.08] bg-white/[0.035] px-2 text-xs text-mist-200 outline-none focus:border-moon/25"
               onChange={(event) => setMoodFilter(event.target.value)}
               value={moodFilter}
             >
-              <option value="all">All moods</option>
+              <option value="all">{t.allMoods}</option>
               {moodOptions.map((mood) => (
                 <option key={mood} value={mood}>
                   {mood}
@@ -227,21 +252,21 @@ export function DreamList({
               ))}
             </select>
             <input
-              aria-label="Filter by theme"
+              aria-label={t.theme}
               className="h-8 rounded border border-white/[0.08] bg-white/[0.035] px-2 text-xs text-mist-200 outline-none placeholder:text-mist-400 focus:border-moon/25"
               onChange={(event) => setThemeFilter(event.target.value)}
-              placeholder="Theme"
+              placeholder={t.theme}
               value={themeFilter}
             />
             <select
-              aria-label="Filter by analysis status"
+              aria-label={t.allNotes}
               className="h-8 rounded border border-white/[0.08] bg-white/[0.035] px-2 text-xs text-mist-200 outline-none focus:border-moon/25"
               onChange={(event) => setAnalysisFilter(event.target.value)}
               value={analysisFilter}
             >
-              <option value="all">All notes</option>
-              <option value="analyzed">Analyzed</option>
-              <option value="unread">Unread</option>
+              <option value="all">{t.allNotes}</option>
+              <option value="analyzed">{t.analyzed}</option>
+              <option value="unread">{t.unread}</option>
             </select>
           </div>
         </div>
@@ -250,15 +275,15 @@ export function DreamList({
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
               <Download size={13} />
-              Backup
+              {t.backup}
             </div>
             <span className="text-[11px] text-mist-400">
-              {dreams.length} notes
+              {t.notesCount(dreams.length)}
             </span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             <button
-              aria-label="Export JSON backup"
+              aria-label={t.exportJsonBackup}
               className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-tide/25 hover:text-tide focus-visible:ring-2 focus-visible:ring-tide/20 disabled:cursor-not-allowed disabled:opacity-45"
               disabled={dreams.length === 0}
               onClick={onExportJson}
@@ -267,7 +292,7 @@ export function DreamList({
               <Download size={14} />
             </button>
             <button
-              aria-label="Export Markdown backup"
+              aria-label={t.exportMarkdownBackup}
               className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-moon/25 hover:text-moon focus-visible:ring-2 focus-visible:ring-moon/20 disabled:cursor-not-allowed disabled:opacity-45"
               disabled={dreams.length === 0}
               onClick={onExportMarkdown}
@@ -276,7 +301,7 @@ export function DreamList({
               <FileText size={14} />
             </button>
             <button
-              aria-label="Import JSON backup"
+              aria-label={t.importJsonBackup}
               className="grid h-8 place-items-center rounded border border-white/[0.08] bg-white/[0.035] text-mist-300 outline-none transition hover:border-iris/25 hover:text-iris focus-visible:ring-2 focus-visible:ring-iris/20"
               onClick={() => importInputRef.current?.click()}
               type="button"
@@ -306,19 +331,17 @@ export function DreamList({
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist-400">
               <ShieldCheck size={13} />
-              Privacy
+              {t.privacy}
             </div>
             <LockKeyhole size={13} className="text-mist-500" />
           </div>
           <div className="space-y-2 text-[11px] leading-4 text-mist-400">
             <p className="flex gap-2">
               <HardDrive size={13} className="mt-0.5 shrink-0 text-tide" />
-              Notes are stored in this browser. Export before switching devices
-              or clearing site data.
+              {t.privacyLocal}
             </p>
             <p>
-              AI analysis sends only the selected dream text to the configured
-              backend.
+              {t.privacyAi}
             </p>
           </div>
           <button
@@ -328,7 +351,7 @@ export function DreamList({
             type="button"
           >
             <Trash2 size={13} />
-            Delete local journal
+            {t.deleteLocalJournal}
           </button>
           {privacyStatus.tone !== 'idle' ? (
             <p className="mt-2 text-[11px] leading-4 text-tide">
@@ -345,10 +368,10 @@ export function DreamList({
               <Sparkle size={17} />
             </div>
             <h2 className="mt-4 text-sm font-medium text-mist-100">
-              No dreams yet
+              {t.noDreamsYet}
             </h2>
             <p className="mt-2 text-xs leading-5 text-mist-400">
-              Start with a blank note and let the pattern emerge after writing.
+              {t.noDreamsYetDescription}
             </p>
             <button
               className="mt-4 inline-flex h-9 items-center justify-center gap-2 rounded-md border border-moon/25 bg-moon/[0.1] px-3 text-xs font-medium text-moon outline-none transition hover:border-moon/40 hover:bg-moon/[0.16] focus-visible:ring-2 focus-visible:ring-moon/20"
@@ -356,7 +379,7 @@ export function DreamList({
               type="button"
             >
               <Plus size={14} />
-              New dream
+              {t.newDream}
             </button>
           </div>
         ) : null}
@@ -367,11 +390,10 @@ export function DreamList({
               <Search size={17} />
             </div>
             <h2 className="mt-4 text-sm font-medium text-mist-100">
-              No matching dreams
+              {t.noMatchingDreams}
             </h2>
             <p className="mt-2 text-xs leading-5 text-mist-400">
-              Search looks through notes, moods, symbols, places, characters,
-              and themes.
+              {t.noMatchingDreamsDescription}
             </p>
           </div>
         ) : null}
@@ -384,7 +406,7 @@ export function DreamList({
 
             return (
               <motion.button
-                aria-label={`Open dream: ${title}`}
+                aria-label={`${t.openDream}: ${title}`}
                 aria-current={isSelected ? 'true' : undefined}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 className={`group relative w-full overflow-hidden rounded-md border p-3 text-left outline-none transition ${
@@ -431,7 +453,7 @@ export function DreamList({
                 </div>
                 <p className="relative mt-2 line-clamp-2 text-xs leading-5 text-mist-300/[0.78]">
                   {dream.text ||
-                    'A blank page for the dream you just woke from.'}
+                    t.blankDreamText}
                 </p>
               </motion.button>
             )

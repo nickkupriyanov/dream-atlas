@@ -13,6 +13,7 @@ import {
   UserRound,
 } from 'lucide-react'
 import type { DreamEntry } from '../types/dream'
+import { useI18n } from '../i18n'
 import {
   createDreamAtlas,
   type AtlasItem,
@@ -33,17 +34,17 @@ type SignalFilter =
   | 'places'
   | 'characters'
 
-const signalFilters: { label: string; value: SignalFilter }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Emotions', value: 'emotions' },
-  { label: 'Symbols', value: 'symbols' },
-  { label: 'Themes', value: 'themes' },
-  { label: 'Places', value: 'places' },
-  { label: 'People', value: 'characters' },
-]
-
 export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
+  const { t } = useI18n()
   const [signalFilter, setSignalFilter] = useState<SignalFilter>('all')
+  const signalFilters: { label: string; value: SignalFilter }[] = [
+    { label: t.all, value: 'all' },
+    { label: t.emotions, value: 'emotions' },
+    { label: t.symbols, value: 'symbols' },
+    { label: t.themes, value: 'themes' },
+    { label: t.places, value: 'places' },
+    { label: t.people, value: 'characters' },
+  ]
   const atlas = createDreamAtlas(dreams)
   const totalSignals =
     atlas.symbols.length +
@@ -64,7 +65,7 @@ export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
               Dream Atlas
             </h2>
             <p className="text-xs text-mist-400">
-              {dreams.length} dreams · {totalSignals} signals
+              {t.dreamsCount(dreams.length)} · {totalSignals} {t.signals}
             </p>
           </div>
         </div>
@@ -95,11 +96,10 @@ export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
               <CircleDashed size={18} />
             </div>
             <h3 className="mt-4 text-sm font-medium text-mist-100">
-              No atlas yet
+              {t.noAtlas}
             </h3>
             <p className="mt-2 max-w-[220px] text-xs leading-5 text-mist-400">
-              Analyze dreams to reveal recurring symbols, places, characters,
-              themes, and emotions.
+              {t.noAtlasDescription}
             </p>
           </div>
         ) : null}
@@ -122,7 +122,7 @@ export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
                     icon={<SmilePlus size={16} className="text-ember" />}
                     items={atlas.emotions}
                     onSelectDream={onSelectDream}
-                    title="Emotional Weather"
+                    title={t.emotionalWeather}
                   />
                 </>
               ) : null}
@@ -131,7 +131,7 @@ export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
                   icon={<Shapes size={16} className="text-iris" />}
                   items={atlas.symbols}
                   onSelectDream={onSelectDream}
-                  title="Symbols"
+                  title={t.symbols}
                 />
               ) : null}
               {signalFilter === 'all' || signalFilter === 'themes' ? (
@@ -139,7 +139,7 @@ export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
                   icon={<Sparkles size={16} className="text-moon" />}
                   items={atlas.themes}
                   onSelectDream={onSelectDream}
-                  title="Recurring Themes"
+                  title={t.recurringThemes}
                 />
               ) : null}
               {signalFilter === 'all' || signalFilter === 'places' ? (
@@ -147,7 +147,7 @@ export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
                   icon={<MapPinned size={16} className="text-tide" />}
                   items={atlas.places}
                   onSelectDream={onSelectDream}
-                  title="Places"
+                  title={t.places}
                 />
               ) : null}
               {signalFilter === 'all' || signalFilter === 'characters' ? (
@@ -155,7 +155,7 @@ export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
                   icon={<UserRound size={16} className="text-moon" />}
                   items={atlas.characters}
                   onSelectDream={onSelectDream}
-                  title="Characters"
+                  title={t.characters}
                 />
               ) : null}
             </motion.div>
@@ -174,6 +174,8 @@ type AtlasSectionProps = {
 }
 
 function AtlasSection({ icon, items, onSelectDream, title }: AtlasSectionProps) {
+  const { t } = useI18n()
+
   return (
     <section className="rounded-md border border-white/[0.08] bg-white/[0.035] p-4 transition hover:border-white/[0.13]">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -193,7 +195,7 @@ function AtlasSection({ icon, items, onSelectDream, title }: AtlasSectionProps) 
             />
           ))
         ) : (
-          <span className="text-xs text-mist-400">Not detected yet</span>
+          <span className="text-xs text-mist-400">{t.notDetectedYet}</span>
         )}
       </div>
     </section>
@@ -206,12 +208,14 @@ type EmotionTimelineProps = {
 }
 
 function EmotionTimeline({ items, onSelectDream }: EmotionTimelineProps) {
+  const { t } = useI18n()
+
   return (
     <section className="rounded-md border border-white/[0.08] bg-white/[0.035] p-4 transition hover:border-white/[0.13]">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm font-medium text-mist-100">
           <Sparkles size={16} className="text-tide" />
-          Emotion Timeline
+          {t.emotionTimeline}
         </div>
         <span className="text-xs text-mist-400">{items.length}</span>
       </div>
@@ -219,7 +223,7 @@ function EmotionTimeline({ items, onSelectDream }: EmotionTimelineProps) {
         {items.length > 0 ? (
           items.slice(-7).map((item) => (
             <button
-              aria-label={`Open dream from ${item.date}: ${item.dreamTitle}`}
+              aria-label={`${t.openDreamFrom} ${item.date}: ${item.dreamTitle}`}
               className="group w-full rounded border border-white/[0.08] bg-night-950/[0.38] px-3 py-2 text-left outline-none transition hover:border-tide/25 hover:bg-tide/[0.055] focus-visible:ring-2 focus-visible:ring-tide/20"
               key={item.dreamId}
               onClick={() => onSelectDream(item.dreamId)}
@@ -235,7 +239,7 @@ function EmotionTimeline({ items, onSelectDream }: EmotionTimelineProps) {
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-night-950/[0.65]">
                 <div
-                  aria-label={`${item.dominantEmotion} intensity ${item.averageIntensity}%`}
+                  aria-label={`${item.dominantEmotion} ${t.intensity} ${item.averageIntensity}%`}
                   className="h-full rounded-full bg-gradient-to-r from-tide via-moon to-ember"
                   role="progressbar"
                   aria-valuemax={100}
@@ -254,7 +258,7 @@ function EmotionTimeline({ items, onSelectDream }: EmotionTimelineProps) {
             </button>
           ))
         ) : (
-          <span className="text-xs text-mist-400">Not detected yet</span>
+          <span className="text-xs text-mist-400">{t.notDetectedYet}</span>
         )}
       </div>
     </section>
@@ -274,6 +278,8 @@ function EmotionSection({
   onSelectDream,
   title,
 }: EmotionSectionProps) {
+  const { t } = useI18n()
+
   return (
     <section className="rounded-md border border-white/[0.08] bg-white/[0.035] p-4 transition hover:border-white/[0.13]">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -293,7 +299,7 @@ function EmotionSection({
             />
           ))
         ) : (
-          <span className="text-xs text-mist-400">Not detected yet</span>
+          <span className="text-xs text-mist-400">{t.notDetectedYet}</span>
         )}
       </div>
     </section>
@@ -307,12 +313,13 @@ type EmotionButtonProps = {
 
 function EmotionButton({ item, onSelectDream }: EmotionButtonProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const { t } = useI18n()
 
   return (
     <div className="rounded border border-white/[0.08] bg-night-950/[0.38] transition hover:border-ember/25 hover:bg-ember/[0.06]">
       <div className="flex items-stretch">
         <button
-          aria-label={`Open latest dream for emotion ${item.label}: ${item.latestDreamTitle}`}
+          aria-label={`${t.openLatestDreamFor} ${t.emotion.toLowerCase()} ${item.label}: ${item.latestDreamTitle}`}
           className="group min-w-0 flex-1 px-3 py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-ember/20"
           onClick={() => onSelectDream(item.latestDreamId)}
           type="button"
@@ -325,7 +332,7 @@ function EmotionButton({ item, onSelectDream }: EmotionButtonProps) {
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-night-950/[0.65]">
             <div
-              aria-label={`${item.label} average intensity ${item.averageIntensity}%`}
+              aria-label={`${item.label} ${t.averageIntensity} ${item.averageIntensity}%`}
               className="h-full rounded-full bg-gradient-to-r from-ember via-moon to-tide"
               role="progressbar"
               aria-valuemax={100}
@@ -335,7 +342,9 @@ function EmotionButton({ item, onSelectDream }: EmotionButtonProps) {
             />
           </div>
           <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-mist-400">
-            <span className="truncate">Last seen in {item.latestDreamTitle}</span>
+            <span className="truncate">
+              {t.lastSeenIn} {item.latestDreamTitle}
+            </span>
             <ArrowRight
               className="shrink-0 opacity-50 transition group-hover:translate-x-0.5 group-hover:opacity-100"
               size={13}
@@ -343,7 +352,7 @@ function EmotionButton({ item, onSelectDream }: EmotionButtonProps) {
           </div>
         </button>
         <button
-          aria-label={`${isExpanded ? 'Hide' : 'Show'} related dreams for ${item.label}`}
+          aria-label={`${isExpanded ? t.hide : t.show} ${t.relatedDreamsFor} ${item.label}`}
           className="grid w-8 place-items-center border-l border-white/[0.08] text-mist-400 outline-none transition hover:text-mist-100 focus-visible:ring-2 focus-visible:ring-ember/20"
           onClick={() => setIsExpanded((value) => !value)}
           type="button"
@@ -368,21 +377,24 @@ type AtlasButtonProps = {
 
 function AtlasButton({ item, onSelectDream }: AtlasButtonProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const { t } = useI18n()
   const feedbackSummary = [
     item.feedbackCounts?.personal
-      ? `${item.feedbackCounts.personal} personal`
+      ? `${item.feedbackCounts.personal} ${t.personalLower}`
       : '',
     item.feedbackCounts?.questionable
-      ? `${item.feedbackCounts.questionable} unsure`
+      ? `${item.feedbackCounts.questionable} ${t.unsureLower}`
       : '',
-    item.feedbackCounts?.wrong ? `${item.feedbackCounts.wrong} wrong` : '',
+    item.feedbackCounts?.wrong
+      ? `${item.feedbackCounts.wrong} ${t.wrongLower}`
+      : '',
   ].filter(Boolean)
 
   return (
     <div className="rounded border border-white/[0.08] bg-night-950/[0.38] transition hover:border-moon/25 hover:bg-moon/[0.055]">
       <div className="flex items-stretch">
         <button
-          aria-label={`Open latest dream for ${item.label}: ${item.latestDreamTitle}`}
+          aria-label={`${t.openLatestDreamFor} ${item.label}: ${item.latestDreamTitle}`}
           className="group min-w-0 flex-1 px-3 py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-moon/20"
           onClick={() => onSelectDream(item.latestDreamId)}
           type="button"
@@ -418,7 +430,7 @@ function AtlasButton({ item, onSelectDream }: AtlasButtonProps) {
           ) : null}
         </button>
         <button
-          aria-label={`${isExpanded ? 'Hide' : 'Show'} related dreams for ${item.label}`}
+          aria-label={`${isExpanded ? t.hide : t.show} ${t.relatedDreamsFor} ${item.label}`}
           className="grid w-8 place-items-center border-l border-white/[0.08] text-mist-400 outline-none transition hover:text-mist-100 focus-visible:ring-2 focus-visible:ring-moon/20"
           onClick={() => setIsExpanded((value) => !value)}
           type="button"
@@ -442,11 +454,13 @@ type RelatedDreamListProps = {
 }
 
 function RelatedDreamList({ dreams, onSelectDream }: RelatedDreamListProps) {
+  const { t } = useI18n()
+
   return (
     <div className="space-y-1 border-t border-white/[0.08] px-2 py-2">
       {dreams.map((dream) => (
         <button
-          aria-label={`Open related dream: ${dream.title}`}
+          aria-label={`${t.openRelatedDream}: ${dream.title}`}
           className="flex w-full items-center justify-between gap-2 rounded px-2 py-1.5 text-left text-[11px] outline-none transition hover:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-moon/20"
           key={dream.id}
           onClick={() => onSelectDream(dream.id)}

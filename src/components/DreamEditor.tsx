@@ -13,6 +13,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import type { DreamEntry } from '../types/dream'
+import { useI18n } from '../i18n'
 import { getDreamSignature } from '../utils/dreamSignature'
 
 type DreamEditorProps = {
@@ -46,6 +47,8 @@ export function DreamEditor({
   onToggleCaptureMode,
   saveStatus,
 }: DreamEditorProps) {
+  const { t } = useI18n()
+
   if (!dream) {
     return (
       <main className="flex min-h-0 flex-1 flex-col items-center justify-center bg-night-850 px-6 text-center">
@@ -53,11 +56,10 @@ export function DreamEditor({
           <PenLine size={20} />
         </div>
         <h2 className="mt-5 font-serif text-3xl text-mist-100">
-          Start a dream note
+          {t.startDreamNote}
         </h2>
         <p className="mt-3 max-w-md text-sm leading-6 text-mist-400">
-          The journal is empty. Create a record and keep the first details close
-          to the moment you woke.
+          {t.startDreamNoteDescription}
         </p>
         <button
           className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-moon/25 bg-moon/[0.12] px-4 text-sm font-medium text-moon outline-none transition hover:border-moon/[0.45] hover:bg-moon/[0.18] focus-visible:ring-2 focus-visible:ring-moon/20"
@@ -65,7 +67,7 @@ export function DreamEditor({
           type="button"
         >
           <Plus size={16} />
-          New dream
+          {t.newDream}
         </button>
       </main>
     )
@@ -90,7 +92,7 @@ export function DreamEditor({
           >
             <div className="mb-3 flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.22em] text-moon/70">
               <PenLine size={14} />
-              <span>Lucid note</span>
+              <span>{t.lucidNote}</span>
               <span
                 className="ml-1 h-1.5 w-12 rounded-full"
                 style={{ background: signature.gradient }}
@@ -101,16 +103,16 @@ export function DreamEditor({
                 ) : (
                   <CheckCircle2 size={12} />
                 )}
-                {saveStatus === 'saving' ? 'Saving' : 'Saved'}
+                {saveStatus === 'saving' ? t.saving : t.saved}
               </span>
             </div>
             <input
-              aria-label="Dream title"
+              aria-label={t.dreamTitle}
               className={`w-full max-w-3xl bg-transparent font-serif leading-tight text-mist-100 outline-none transition placeholder:text-mist-400/60 focus:text-white ${
                 isCaptureMode ? 'text-2xl lg:text-3xl' : 'text-3xl lg:text-4xl'
               }`}
               onChange={(event) => onTitleChange(event.target.value)}
-              placeholder="Untitled Dream"
+              placeholder={t.untitledDream}
               value={dream.title}
             />
             <div
@@ -121,10 +123,10 @@ export function DreamEditor({
               <label className="inline-flex h-8 items-center gap-1.5 rounded border border-white/[0.08] bg-white/[0.03] px-2 text-xs text-mist-300 transition focus-within:border-moon/25 focus-within:bg-night-950/40">
                 <CalendarDays size={14} />
                 <input
-                  aria-label="Dream date"
+                  aria-label={t.dreamDate}
                   className="w-20 bg-transparent text-mist-200 outline-none placeholder:text-mist-400"
                   onChange={(event) => onDateChange(event.target.value)}
-                  placeholder="Date"
+                  placeholder={t.date}
                   value={dream.date}
                 />
               </label>
@@ -134,10 +136,10 @@ export function DreamEditor({
                 {dream.time}
               </span>
               <input
-                aria-label="Dream mood"
+                aria-label={t.dreamMood}
                 className="h-8 w-32 rounded border border-white/[0.08] bg-white/[0.03] px-2 text-xs text-mist-300 outline-none transition placeholder:text-mist-400 focus:border-moon/25 focus:bg-night-950/40"
                 onChange={(event) => onMoodChange(event.target.value)}
-                placeholder="Mood"
+                placeholder={t.mood}
                 value={dream.mood}
               />
             </div>
@@ -147,7 +149,7 @@ export function DreamEditor({
         <div className="flex flex-wrap items-center gap-2">
           <button
             aria-label={
-              isCaptureMode ? 'Leave capture mode' : 'Enter capture mode'
+              isCaptureMode ? t.captureModeLeave : t.captureModeEnter
             }
             className="grid h-10 w-10 place-items-center rounded-md border border-white/[0.08] bg-white/[0.035] text-mist-400 outline-none transition hover:border-tide/30 hover:bg-tide/[0.08] hover:text-tide focus-visible:ring-2 focus-visible:ring-tide/20"
             onClick={onToggleCaptureMode}
@@ -156,7 +158,7 @@ export function DreamEditor({
             {isCaptureMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
           <button
-            aria-label="Delete dream"
+            aria-label={t.deleteDream}
             className={`h-10 w-10 place-items-center rounded-md border border-white/[0.08] bg-white/[0.035] text-mist-400 outline-none transition hover:border-ember/35 hover:bg-ember/[0.08] hover:text-ember focus-visible:ring-2 focus-visible:ring-ember/20 ${
               isCaptureMode ? 'hidden sm:grid' : 'grid'
             }`}
@@ -180,7 +182,7 @@ export function DreamEditor({
             ) : (
               <Sparkles size={16} />
             )}
-            {analysisStatus === 'loading' ? 'Analyzing...' : 'Analyze Dream'}
+            {analysisStatus === 'loading' ? t.analyzing : t.analyzeDream}
           </motion.button>
         </div>
       </header>
@@ -208,9 +210,9 @@ export function DreamEditor({
             )}
             <span>
               {analysisStatus === 'loading'
-                ? 'Reading the dream through the backend...'
+                ? t.readingBackend
                 : analysisStatus === 'success'
-                  ? 'Analysis updated and saved.'
+                  ? t.analysisUpdated
                   : analysisError}
             </span>
           </motion.div>
@@ -240,14 +242,14 @@ export function DreamEditor({
               style={{ background: signature.gradient }}
             />
             <textarea
-              aria-label="Dream text"
+              aria-label={t.dreamText}
               className={`relative h-full w-full resize-none rounded-md bg-transparent font-serif leading-8 text-mist-100 outline-none placeholder:text-mist-400/70 ${
                 isCaptureMode
                   ? 'px-5 py-5 text-xl lg:px-9 lg:py-8'
                   : 'px-5 py-5 text-lg lg:px-8 lg:py-7'
               }`}
               onChange={(event) => onTextChange(event.target.value)}
-              placeholder="Write what stayed with you: places, fragments, voices, colors..."
+              placeholder={t.writePlaceholder}
               spellCheck="true"
               value={dream.text}
             />

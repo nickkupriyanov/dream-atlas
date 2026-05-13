@@ -59,7 +59,7 @@ function dreamSignals(dream: DreamEntry) {
   ]
 }
 
-export function createWeeklyDigest(dreams: DreamEntry[]): WeeklyDigest {
+export function createWeeklyDigest(dreams: DreamEntry[], locale = 'en'): WeeklyDigest {
   const recentDreams = dreams.slice(0, 7)
   const emotions = recentDreams.flatMap((dream) =>
     dream.analysis.emotions.map((emotion) => emotion.label),
@@ -72,17 +72,25 @@ export function createWeeklyDigest(dreams: DreamEntry[]): WeeklyDigest {
       dream.analysis.symbols.map((symbol) => symbol.label),
     ),
   ).slice(0, 3)
-  const dominantEmotion = countLabels(emotions)[0] ?? 'unread'
+  const isRussian = locale === 'ru'
+  const dominantEmotion = countLabels(emotions)[0] ?? (isRussian ? 'без анализа' : 'unread')
   const motif =
-    topThemes[0] ?? topSymbols[0] ?? dominantEmotion ?? 'quiet observation'
+    topThemes[0] ??
+    topSymbols[0] ??
+    dominantEmotion ??
+    (isRussian ? 'тихое наблюдение' : 'quiet observation')
 
   return {
     dominantEmotion,
     dreamCount: recentDreams.length,
     note:
       recentDreams.length > 0
-        ? `You may be circling ${motif}; ${dominantEmotion} shapes the emotional weather around it.`
-        : 'No digest yet.',
+        ? isRussian
+          ? `Похоже, вы возвращаетесь к теме "${motif}"; эмоция "${dominantEmotion}" задает вокруг нее эмоциональную погоду.`
+          : `You may be circling ${motif}; ${dominantEmotion} shapes the emotional weather around it.`
+        : isRussian
+          ? 'Дайджеста пока нет.'
+          : 'No digest yet.',
     topSymbols,
     topThemes,
   }

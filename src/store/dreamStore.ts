@@ -22,15 +22,43 @@ const blankAnalysis: DreamAnalysis = {
   recurringThemes: [],
 }
 
+function isRussianLocale() {
+  return (
+    globalThis.localStorage?.getItem('dream-atlas-locale') === 'ru' ||
+    globalThis.navigator?.language?.toLowerCase().startsWith('ru') === true
+  )
+}
+
+function createBlankAnalysis(): DreamAnalysis {
+  if (!isRussianLocale()) {
+    return blankAnalysis
+  }
+
+  return {
+    symbols: [],
+    places: [],
+    characters: [],
+    summary:
+      'Добавьте сон, затем запустите анализ, чтобы увидеть первые паттерны.',
+    tone: 'без анализа',
+    emotions: [
+      { label: 'тихо', intensity: 24 },
+      { label: 'неясно', intensity: 18 },
+    ],
+    recurringThemes: [],
+  }
+}
+
 function createDreamEntry(): DreamEntry {
   const now = new Date()
+  const russianLocale = isRussianLocale()
   const id =
     globalThis.crypto?.randomUUID?.() ?? `dream-${now.getTime().toString(36)}`
 
   return {
     id,
-    title: 'Untitled Dream',
-    date: now.toLocaleDateString('en-US', {
+    title: russianLocale ? 'Сон без названия' : 'Untitled Dream',
+    date: now.toLocaleDateString(russianLocale ? 'ru-RU' : 'en-US', {
       month: 'short',
       day: 'numeric',
     }),
@@ -39,11 +67,11 @@ function createDreamEntry(): DreamEntry {
       minute: '2-digit',
       hour12: false,
     }),
-    mood: 'unlabeled',
+    mood: russianLocale ? 'без метки' : 'unlabeled',
     reflectionNotes: '',
     symbolFeedback: {},
     text: '',
-    analysis: blankAnalysis,
+    analysis: createBlankAnalysis(),
   }
 }
 
@@ -180,7 +208,9 @@ export const useDreamStore = create<DreamState>()(
 
         if (!selectedDream?.text.trim()) {
           set({
-            analysisError: 'Write a dream before running analysis.',
+            analysisError: isRussianLocale()
+              ? 'Запишите сон перед анализом.'
+              : 'Write a dream before running analysis.',
             analysisStatus: 'error',
           })
           return
@@ -203,7 +233,9 @@ export const useDreamStore = create<DreamState>()(
             analysisError:
               error instanceof Error
                 ? error.message
-                : 'Unable to analyze dream.',
+                : isRussianLocale()
+                  ? 'Не удалось проанализировать сон.'
+                  : 'Unable to analyze dream.',
             analysisStatus: 'error',
           })
         }

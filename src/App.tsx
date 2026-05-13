@@ -4,6 +4,7 @@ import { AtlasPanel } from './components/AtlasPanel'
 import { DreamEditor } from './components/DreamEditor'
 import { DreamList } from './components/DreamList'
 import { InsightsPanel } from './components/InsightsPanel'
+import { useI18n } from './i18n'
 import { useDreamStore } from './store/dreamStore'
 import {
   createDreamJsonBackup,
@@ -24,18 +25,8 @@ type PrivacyStatus = {
   message: string
 }
 
-const mobileViews: {
-  icon: typeof List
-  label: string
-  value: MobileView
-}[] = [
-  { icon: List, label: 'List', value: 'list' },
-  { icon: Feather, label: 'Write', value: 'editor' },
-  { icon: Brain, label: 'Insights', value: 'insights' },
-  { icon: Layers, label: 'Atlas', value: 'atlas' },
-]
-
 function App() {
+  const { t } = useI18n()
   const [rightPanelMode, setRightPanelMode] =
     useState<RightPanelMode>('insights')
   const [mobileView, setMobileView] = useState<MobileView>('editor')
@@ -70,6 +61,16 @@ function App() {
 
   const selectedDream =
     dreams.find((dream) => dream.id === selectedDreamId) ?? dreams[0]
+  const mobileViews: {
+    icon: typeof List
+    label: string
+    value: MobileView
+  }[] = [
+    { icon: List, label: t.list, value: 'list' },
+    { icon: Feather, label: t.write, value: 'editor' },
+    { icon: Brain, label: t.insights, value: 'insights' },
+    { icon: Layers, label: t.atlas, value: 'atlas' },
+  ]
 
   useEffect(() => {
     if (!selectedDream) {
@@ -107,7 +108,7 @@ function App() {
       'application/json',
     )
     setBackupStatus({
-      message: `Exported ${dreams.length} dreams as JSON.`,
+      message: t.exportJsonSuccess(dreams.length),
       tone: 'success',
     })
   }
@@ -119,7 +120,7 @@ function App() {
       'text/markdown',
     )
     setBackupStatus({
-      message: `Exported ${dreams.length} dreams as Markdown.`,
+      message: t.exportMarkdownSuccess(dreams.length),
       tone: 'success',
     })
   }
@@ -132,24 +133,25 @@ function App() {
       importDreams(nextDreams)
       setMobileView('list')
       setBackupStatus({
-        message: `Imported ${nextDreams.length} dreams from backup.`,
+        message: t.importSuccess(nextDreams.length),
         tone: 'success',
       })
     } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+
       setBackupStatus({
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Unable to import this backup.',
+        message: message.includes('array of dreams')
+          ? t.backupInvalid
+          : message.includes('does not contain any dreams')
+            ? t.backupNoDreams
+            : message || t.backupImportError,
         tone: 'error',
       })
     }
   }
 
   function clearLocalDreams() {
-    const confirmed = window.confirm(
-      'Delete every local dream note from this browser? Export a JSON backup first if you may want them later.',
-    )
+    const confirmed = window.confirm(t.deleteLocalConfirm)
 
     if (!confirmed) {
       return
@@ -159,7 +161,7 @@ function App() {
     setMobileView('list')
     setBackupStatus({ message: '', tone: 'idle' })
     setPrivacyStatus({
-      message: 'Local journal data deleted from this browser.',
+      message: t.localJournalDeleted,
       tone: 'success',
     })
   }
@@ -274,7 +276,7 @@ function App() {
                   onClick={() => setRightPanelMode('insights')}
                   type="button"
                 >
-                  Insights
+                  {t.insights}
                 </button>
                 <button
                 className={`h-8 rounded text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-tide/20 ${
@@ -286,7 +288,7 @@ function App() {
                   onClick={() => setRightPanelMode('atlas')}
                   type="button"
                 >
-                  Atlas
+                  {t.atlas}
                 </button>
               </div>
             </div>

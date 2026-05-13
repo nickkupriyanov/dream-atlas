@@ -12,6 +12,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { mockDreams } from './data/mockDreams'
+import { I18nProvider } from './i18n'
 import { useDreamStore } from './store/dreamStore'
 
 const analysisPayload = {
@@ -63,10 +64,18 @@ afterEach(() => {
 })
 
 describe('Dream Atlas app flows', () => {
+  function renderApp() {
+    return render(
+      <I18nProvider>
+        <App />
+      </I18nProvider>,
+    )
+  }
+
   it('creates, analyzes and surfaces a new dream in the atlas', async () => {
     const user = userEvent.setup()
 
-    render(<App />)
+    renderApp()
 
     const initialSelectedDreamId = useDreamStore.getState().selectedDreamId
     await user.click(screen.getByRole('button', { name: 'New dream' }))
@@ -139,7 +148,7 @@ describe('Dream Atlas app flows', () => {
       version: 1,
     }
 
-    render(<App />)
+    renderApp()
 
     const exportJsonButton = screen.getByRole('button', {
       name: 'Export JSON backup',
