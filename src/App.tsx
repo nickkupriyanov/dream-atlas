@@ -169,8 +169,8 @@ function App() {
   return (
     <div className="relative h-screen overflow-hidden bg-night-950 text-mist-100">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_24%_0%,rgba(155,140,255,0.13),transparent_34%),radial-gradient(circle_at_82%_18%,rgba(216,201,155,0.10),transparent_30%),linear-gradient(180deg,rgba(8,10,16,0),rgba(8,10,16,0.72))]" />
-      <div className="relative flex h-full flex-col md:grid md:grid-cols-[286px_minmax(0,1fr)] lg:grid-cols-[286px_minmax(0,1fr)_338px]">
-        <nav className="grid grid-cols-4 gap-1 border-b border-white/[0.08] bg-night-950/80 p-2 md:hidden">
+      <div className="relative flex h-full flex-col lg:grid lg:grid-cols-[286px_minmax(0,1fr)_338px]">
+        <nav className="grid grid-cols-4 gap-1 border-b border-white/[0.08] bg-night-950/80 p-2 lg:hidden">
           {mobileViews.map((view) => {
             const Icon = view.icon
 
@@ -194,7 +194,7 @@ function App() {
         </nav>
 
         <div
-          className={`min-h-0 flex-1 md:flex ${
+          className={`min-h-0 flex-1 lg:flex ${
             mobileView === 'list' ? 'flex' : 'hidden'
           }`}
         >
@@ -213,7 +213,7 @@ function App() {
         </div>
 
         <div
-          className={`min-h-0 flex-1 md:flex ${
+          className={`min-h-0 flex-1 lg:flex ${
             mobileView === 'editor' ? 'flex' : 'hidden'
           }`}
         >

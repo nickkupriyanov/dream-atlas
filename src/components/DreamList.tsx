@@ -155,7 +155,7 @@ export function DreamList({
   }
 
   return (
-    <aside className="flex h-full min-h-0 w-full flex-col border-r border-white/[0.08] bg-night-900/[0.78] md:w-[286px]">
+    <aside className="flex h-full min-h-0 w-full flex-col border-r border-white/[0.08] bg-night-900/[0.78] lg:w-[286px]">
       <div className="border-b border-white/[0.08] px-4 py-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">

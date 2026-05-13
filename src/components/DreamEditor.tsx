@@ -85,6 +85,7 @@ export function DreamEditor({
         <AnimatePresence mode="wait">
           <motion.div
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            className="min-w-0"
             exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
             initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
             key={dream.id}
@@ -108,7 +109,7 @@ export function DreamEditor({
             </div>
             <input
               aria-label={t.dreamTitle}
-              className={`w-full max-w-3xl bg-transparent font-serif leading-tight text-mist-100 outline-none transition placeholder:text-mist-400/60 focus:text-white ${
+              className={`w-full min-w-0 max-w-3xl overflow-hidden text-ellipsis bg-transparent font-serif leading-tight text-mist-100 outline-none transition placeholder:text-mist-400/60 focus:text-white ${
                 isCaptureMode ? 'text-2xl lg:text-3xl' : 'text-3xl lg:text-4xl'
               }`}
               onChange={(event) => onTitleChange(event.target.value)}

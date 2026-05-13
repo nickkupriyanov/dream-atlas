@@ -70,11 +70,11 @@ export function AtlasPanel({ dreams, onSelectDream }: AtlasPanelProps) {
           </div>
         </div>
 
-        <div className="mt-4 flex gap-1 overflow-x-auto rounded-md border border-white/[0.08] bg-night-950/[0.36] p-1">
+        <div className="mt-4 flex flex-wrap gap-1 rounded-md border border-white/[0.08] bg-night-950/[0.36] p-1">
           {signalFilters.map((filter) => (
             <button
               aria-pressed={signalFilter === filter.value}
-              className={`h-7 shrink-0 rounded px-2 text-[11px] font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-tide/20 ${
+              className={`h-7 min-w-[60px] flex-1 rounded px-2 text-[11px] font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-tide/20 sm:flex-none ${
                 signalFilter === filter.value
                   ? 'bg-white/[0.08] text-mist-100'
                   : 'text-mist-400 hover:text-mist-200'
@@ -230,7 +230,7 @@ function EmotionTimeline({ items, onSelectDream }: EmotionTimelineProps) {
               type="button"
             >
               <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
-                <span className="truncate font-medium text-mist-100">
+                <span className="min-w-0 truncate font-medium text-mist-100">
                   {item.date}
                 </span>
                 <span className="shrink-0 text-mist-400">
@@ -249,7 +249,9 @@ function EmotionTimeline({ items, onSelectDream }: EmotionTimelineProps) {
                 />
               </div>
               <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-mist-400">
-                <span className="truncate">{item.dreamTitle}</span>
+                <span className="min-w-0 flex-1 leading-4 line-clamp-2">
+                  {item.dreamTitle}
+                </span>
                 <ArrowRight
                   className="shrink-0 opacity-50 transition group-hover:translate-x-0.5 group-hover:opacity-100"
                   size={13}
@@ -342,7 +344,7 @@ function EmotionButton({ item, onSelectDream }: EmotionButtonProps) {
             />
           </div>
           <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-mist-400">
-            <span className="truncate">
+            <span className="min-w-0 flex-1 leading-4 line-clamp-2">
               {t.lastSeenIn} {item.latestDreamTitle}
             </span>
             <ArrowRight
@@ -400,7 +402,7 @@ function AtlasButton({ item, onSelectDream }: AtlasButtonProps) {
           type="button"
         >
           <div className="flex items-center justify-between gap-3">
-            <span className="truncate text-xs font-medium text-mist-100">
+            <span className="min-w-0 truncate text-xs font-medium text-mist-100">
               {item.label}
             </span>
             <span className="shrink-0 rounded border border-white/[0.08] bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-mist-400">
@@ -408,7 +410,7 @@ function AtlasButton({ item, onSelectDream }: AtlasButtonProps) {
             </span>
           </div>
           <div className="mt-1.5 flex items-center justify-between gap-2 text-[11px] text-mist-400">
-            <span className="truncate">
+            <span className="min-w-0 flex-1 leading-4 line-clamp-2">
               {item.latestDreamDate} · {item.latestDreamTitle}
             </span>
             <ArrowRight
@@ -461,14 +463,16 @@ function RelatedDreamList({ dreams, onSelectDream }: RelatedDreamListProps) {
       {dreams.map((dream) => (
         <button
           aria-label={`${t.openRelatedDream}: ${dream.title}`}
-          className="flex w-full items-center justify-between gap-2 rounded px-2 py-1.5 text-left text-[11px] outline-none transition hover:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-moon/20"
+          className="flex w-full items-start justify-between gap-2 rounded px-2 py-1.5 text-left text-[11px] outline-none transition hover:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-moon/20"
           key={dream.id}
           onClick={() => onSelectDream(dream.id)}
           type="button"
         >
           <span className="min-w-0">
-            <span className="block truncate text-mist-200">{dream.title}</span>
-            <span className="block truncate text-mist-400">
+            <span className="block line-clamp-2 text-mist-200">
+              {dream.title}
+            </span>
+            <span className="block line-clamp-2 text-mist-400">
               {dream.date} · {dream.mood}
             </span>
           </span>
