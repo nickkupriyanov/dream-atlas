@@ -207,7 +207,8 @@ export async function requestDreamAnalysis(text: string) {
     return createLocalAnalysis(text)
   }
 
-  const response = await fetch(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
+  const endpoint = `${baseUrl.trim().replace(/\/$/, '')}/chat/completions`
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -234,7 +235,9 @@ export async function requestDreamAnalysis(text: string) {
 
   if (!response.ok) {
     const detail = await response.text()
-    throw new Error(detail || 'LLM request failed.')
+    throw new Error(
+      `Timeweb request failed with ${response.status}: ${detail || 'Unknown error.'}`,
+    )
   }
 
   const data = (await response.json()) as {
@@ -247,7 +250,9 @@ export async function requestDreamAnalysis(text: string) {
   const content = data.choices?.[0]?.message?.content
 
   if (typeof content !== 'string' || !content.trim()) {
-    throw new Error('Timeweb Agent returned an empty response.')
+    throw new Error(
+      `Timeweb Agent returned an empty response from ${endpoint}.`,
+    )
   }
 
   const parsed = JSON.parse(extractJsonObject(content)) as unknown

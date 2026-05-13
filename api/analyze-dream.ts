@@ -3,6 +3,10 @@ import {
   type AnalyzeDreamBody,
 } from '../src/server/dreamAnalysis'
 
+export const config = {
+  runtime: 'nodejs',
+}
+
 type VercelRequest = {
   body?: unknown
   method?: string
@@ -31,6 +35,12 @@ export default async function handler(
 
     response.status(result.statusCode).json(result.payload)
   } catch (error) {
+    console.error('Dream analysis API failed', {
+      error: error instanceof Error ? error.message : error,
+      hasBody: Boolean(request.body),
+      method: request.method,
+    })
+
     response.status(500).json({
       error:
         error instanceof Error ? error.message : 'Unable to analyze dream.',
